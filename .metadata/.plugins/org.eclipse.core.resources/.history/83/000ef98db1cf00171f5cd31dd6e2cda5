@@ -152,7 +152,7 @@ public class Blackjack {
 		
 	//}
 	
-	public List<Integer> makeMove(int action){
+	public List makeMove(int action){
 		if(action == 0){
 			this.Hit();
 			int reward=getReward();

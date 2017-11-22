@@ -1,16 +1,13 @@
 package blackjack;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Random;
 
 public class Blackjack {
 	
 	private int playerSum = 0;
 	private int dealerCard = 0;
-	private int playerAce = 0;
-	private int dealerAce = 0;
+	private boolean playerAce = false;
+	private boolean dealerAce = false;
 	private boolean PlayersTurn = true;
 	private int dealerSum = 0;
 
@@ -21,10 +18,10 @@ public class Blackjack {
 		// System.out.println("card2 is " + card2);
 		this.playerSum = getValue(card1) + getValue(card2);
 		// System.out.println("player sum first is:" + playerSum);
-		if(checkAce(card1)==1||checkAce(card2)==1){
-			this.playerAce = 1;
+		if(checkAce(card1)||checkAce(card2)){
+			this.playerAce = true;
 		}
-		if(this.playerAce==1){
+		if(this.playerAce==true){
 			this.playerSum += 10;
 		}
 		System.out.println("player sum ace is:" + playerSum);
@@ -32,10 +29,10 @@ public class Blackjack {
 		System.out.println("dealercard is " + dealerCard);
 		this.dealerSum = getValue(this.dealerCard);
 		System.out.println("dealer sum first is:" + dealerSum);
-		if(checkAce(this.dealerCard)==1){
-			this.dealerAce = 1;
+		if(checkAce(this.dealerCard)){
+			this.dealerAce = true;
 		}
-		if(this.dealerAce==1){
+		if(this.dealerAce==true){
 			this.dealerSum += 10;
 		}
 		System.out.println("dealer sum ace is:" + dealerSum);
@@ -52,9 +49,9 @@ public class Blackjack {
 		if(!gameOver() && this.PlayersTurn==true){
 			int card = getCard();
 			this.playerSum += getValue(card);
-			if(this.playerSum > 21 && this.playerAce == 1){
+			if(this.playerSum > 21 && this.playerAce == true){
 				this.playerSum -= 10;
-				this.playerAce = 0;
+				this.playerAce = false;
 			}
 			if(this.playerSum>21){
 				this.PlayersTurn=false;
@@ -71,9 +68,9 @@ public class Blackjack {
 		// if(!gameOver()){
 		int card = getCard();
 		this.dealerSum += getValue(card);
-		if(this.dealerSum > 21 && this.dealerAce == 1){
+		if(this.dealerSum > 21 && this.dealerAce == true){
 			this.dealerSum -= 10;
-			this.dealerAce = 0;
+			this.dealerAce = false;
 		}
 			
 	}
@@ -113,11 +110,11 @@ public class Blackjack {
 		}
 	}
 	
-	public int checkAce(int card){
+	public boolean checkAce(int card){
 		if(card==1){
-			return 1;
+			return true;
 		}
-		return 0;
+		return false;
 	}
 	
 	public int getRandomAction(){
@@ -152,23 +149,8 @@ public class Blackjack {
 		
 	//}
 	
-	public List<Integer> makeMove(int action){
-		if(action == 0){
-			this.Hit();
-			int reward=getReward();
-			ArrayList<Integer> output = new ArrayList<Integer>(Arrays.asList(playerSum, playerAce, dealerCard,reward));
-			return output;
-		}
-		else{
-			this.Stand();
-			while(this.dealerSum<17 && this.playerSum<=21){
-				this.DealerHit();
-			}
-			int reward=getReward();
-			ArrayList<Integer> output = new ArrayList<Integer>(Arrays.asList(playerSum, playerAce, dealerCard,reward));
-			return output;
-			
-		}
+	public State makeMove(int action){
+		
 	}
 	
 	public static void main(String[] args) {

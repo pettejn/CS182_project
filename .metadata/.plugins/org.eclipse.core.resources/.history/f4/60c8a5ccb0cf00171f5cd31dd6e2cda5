@@ -152,21 +152,16 @@ public class Blackjack {
 		
 	//}
 	
-	public List<Integer> makeMove(int action){
+	public List makeMove(int action){
 		if(action == 0){
 			this.Hit();
+			State s = new State(playerSum, playerAce, dealerCard, dealerSum, dealerAce);
 			int reward=getReward();
 			ArrayList<Integer> output = new ArrayList<Integer>(Arrays.asList(playerSum, playerAce, dealerCard,reward));
 			return output;
 		}
 		else{
 			this.Stand();
-			while(this.dealerSum<17 && this.playerSum<=21){
-				this.DealerHit();
-			}
-			int reward=getReward();
-			ArrayList<Integer> output = new ArrayList<Integer>(Arrays.asList(playerSum, playerAce, dealerCard,reward));
-			return output;
 			
 		}
 	}
