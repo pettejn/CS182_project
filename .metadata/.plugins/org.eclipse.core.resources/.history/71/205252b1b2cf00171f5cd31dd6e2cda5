@@ -42,12 +42,6 @@ public class Blackjack {
 		
 	}
 	
-	public List<Integer> getState(){
-		int reward=getReward();
-		ArrayList<Integer> output = new ArrayList<Integer>(Arrays.asList(playerSum, playerAce, dealerCard,reward));
-		return output;
-	}
-	
 	public int getCard() {
 		Random rand = new Random(); 
 		int cardValue = rand.nextInt(13) + 1;

@@ -43,10 +43,12 @@ public class Blackjack {
 	}
 	
 	public List<Integer> getState(){
-		int reward=getReward();
-		ArrayList<Integer> output = new ArrayList<Integer>(Arrays.asList(playerSum, playerAce, dealerCard,reward));
-		return output;
-	}
+		if(action == 0){
+			this.Hit();
+			int reward=getReward();
+			ArrayList<Integer> output = new ArrayList<Integer>(Arrays.asList(playerSum, playerAce, dealerCard,reward));
+			return output;
+		}
 	
 	public int getCard() {
 		Random rand = new Random(); 
