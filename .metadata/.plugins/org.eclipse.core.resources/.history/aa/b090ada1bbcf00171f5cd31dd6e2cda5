@@ -13,9 +13,8 @@ public class Blackjack {
 	private int dealerAce = 0;
 	private boolean PlayersTurn = true;
 	private int dealerSum = 0;
-	private int pair = 0; //value of card in pair
+	private int pair = 0;
 
-	//normal constructor 
 	public Blackjack(){
 		int card1 = getCard();
 		int card2 = getCard();
@@ -46,24 +45,33 @@ public class Blackjack {
 	}
 	
 	//constructor 2 for splitting.
-	public Blackjack(int card, int dealerCard){
+	public Blackjack(int card){
+		int card1 = getCard();
 		int card2 = getCard();
-		this.pair = checkPair(card,card2);
-		this.playerSum = getValue(card) + getValue(card2);
-		if(checkAce(card)==1||checkAce(card2)==1){
+		this.pair = checkPair(card1,card2);
+		// System.out.println("card1 is " + card1);
+		// System.out.println("card2 is " + card2);
+		this.playerSum = getValue(card1) + getValue(card2);
+		// System.out.println("player sum first is:" + playerSum);
+		if(checkAce(card1)==1||checkAce(card2)==1){
 			this.playerAce = 1;
 		}
 		if(this.playerAce==1){
 			this.playerSum += 10;
 		}
-		this.dealerCard = dealerCard;
-		this.dealerSum = getValue(dealerCard);
+		System.out.println("player sum ace is:" + playerSum);
+		this.dealerCard = getCard();
+		System.out.println("dealercard is " + dealerCard);
+		this.dealerSum = getValue(this.dealerCard);
+		System.out.println("dealer sum first is:" + dealerSum);
 		if(checkAce(this.dealerCard)==1){
 			this.dealerAce = 1;
 		}
 		if(this.dealerAce==1){
 			this.dealerSum += 10;
 		}
+		System.out.println("dealer sum ace is:" + dealerSum);
+		
 	}
 	
 	
@@ -75,7 +83,7 @@ public class Blackjack {
 	
 	public int checkPair(int card1, int card2){
 		if (card1 == card2){
-			return card1;
+			return 1;
 		}
 		return 0;
 	}
@@ -86,15 +94,10 @@ public class Blackjack {
 		return cardValue;
 	}
 	
-	public List<Blackjack> Split(){
-		if(this.pair>0){
-			Blackjack split1 = new Blackjack(this.pair, this.dealerCard);
-			Blackjack split2 = new Blackjack(this.pair, this.dealerCard);
-			ArrayList<Blackjack> output = new ArrayList<Blackjack>(Arrays.asList(split1,split2));
-			return output;
+	public void Split(){
+		if(this.pair==true){
+			
 		}
-		ArrayList<Blackjack> output = new ArrayList<Blackjack>(Arrays.asList(this));
-		return output;
 	}
 	
 	public void Hit(){
@@ -112,18 +115,21 @@ public class Blackjack {
 	}
 	
 	public void Stand(){
+		// if(!gameOver()){
 		this.PlayersTurn = false;
 	}
 	
 	public void DealerHit(){
-		this.PlayersTurn=false; //if petter choose to hit on dealer, means player are done.
+		// if(!gameOver()){
 		int card = getCard();
 		this.dealerSum += getValue(card);
 		if(this.dealerSum > 21 && this.dealerAce == 1){
 			this.dealerSum -= 10;
 			this.dealerAce = 0;
 		}
+			
 	}
+
 	
 	public boolean gameOver(){
 		if((this.PlayersTurn == false && this.dealerSum >= 17)||this.playerSum > 21){
@@ -171,7 +177,33 @@ public class Blackjack {
 		int action = rand.nextInt(2) + 0;
 		return action;
 	}
-
+	
+	public int returnReward(int action){
+		if(this.PlayersTurn == true){
+			if(action == 0){
+				this.Hit();
+				int reward = this.getReward();
+				if(reward != 0){
+					return reward;
+				}
+				return (this.playerSum);
+			}
+			if(action == 1){
+				this.Stand();
+			}
+		}
+		while(this.dealerSum<17 && this.playerSum<=21){
+			this.DealerHit();
+					// System.out.println("dealersum afer hit: " + this.dealerSum);
+		}
+		int reward = this.getReward();
+		return reward;
+	}
+	
+	//public State getState(int action){
+		
+	//}
+	
 	public List<Integer> makeMove(int action){
 		if(action == 0){
 			this.Hit();
@@ -187,7 +219,7 @@ public class Blackjack {
 			int reward=getReward();
 			ArrayList<Integer> output = new ArrayList<Integer>(Arrays.asList(playerSum, playerAce, dealerCard,reward));
 			return output;
-	//Have to put in if-sentence here for "splitting"
+			
 		}
 	}
 	

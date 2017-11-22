@@ -116,7 +116,7 @@ public class Blackjack {
 	}
 	
 	public void DealerHit(){
-		this.PlayersTurn=false; //if petter choose to hit on dealer, means player are done.
+		this.PlayersTurn=false;
 		int card = getCard();
 		this.dealerSum += getValue(card);
 		if(this.dealerSum > 21 && this.dealerAce == 1){

@@ -90,11 +90,8 @@ public class Blackjack {
 		if(this.pair>0){
 			Blackjack split1 = new Blackjack(this.pair, this.dealerCard);
 			Blackjack split2 = new Blackjack(this.pair, this.dealerCard);
-			ArrayList<Blackjack> output = new ArrayList<Blackjack>(Arrays.asList(split1,split2));
-			return output;
+			ArrayList<Blackjack> output = new ArrayList<Blackjack>(Arrays.asList(playerSum, playerAce, dealerCard,reward));
 		}
-		ArrayList<Blackjack> output = new ArrayList<Blackjack>(Arrays.asList(this));
-		return output;
 	}
 	
 	public void Hit(){
@@ -112,18 +109,21 @@ public class Blackjack {
 	}
 	
 	public void Stand(){
+		// if(!gameOver()){
 		this.PlayersTurn = false;
 	}
 	
 	public void DealerHit(){
-		this.PlayersTurn=false; //if petter choose to hit on dealer, means player are done.
+		// if(!gameOver()){
 		int card = getCard();
 		this.dealerSum += getValue(card);
 		if(this.dealerSum > 21 && this.dealerAce == 1){
 			this.dealerSum -= 10;
 			this.dealerAce = 0;
 		}
+			
 	}
+
 	
 	public boolean gameOver(){
 		if((this.PlayersTurn == false && this.dealerSum >= 17)||this.playerSum > 21){
@@ -171,7 +171,33 @@ public class Blackjack {
 		int action = rand.nextInt(2) + 0;
 		return action;
 	}
-
+	
+	public int returnReward(int action){
+		if(this.PlayersTurn == true){
+			if(action == 0){
+				this.Hit();
+				int reward = this.getReward();
+				if(reward != 0){
+					return reward;
+				}
+				return (this.playerSum);
+			}
+			if(action == 1){
+				this.Stand();
+			}
+		}
+		while(this.dealerSum<17 && this.playerSum<=21){
+			this.DealerHit();
+					// System.out.println("dealersum afer hit: " + this.dealerSum);
+		}
+		int reward = this.getReward();
+		return reward;
+	}
+	
+	//public State getState(int action){
+		
+	//}
+	
 	public List<Integer> makeMove(int action){
 		if(action == 0){
 			this.Hit();
@@ -187,7 +213,7 @@ public class Blackjack {
 			int reward=getReward();
 			ArrayList<Integer> output = new ArrayList<Integer>(Arrays.asList(playerSum, playerAce, dealerCard,reward));
 			return output;
-	//Have to put in if-sentence here for "splitting"
+			
 		}
 	}
 	
