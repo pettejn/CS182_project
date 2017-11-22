@@ -1,0 +1,19 @@
+package blackjack;
+import Qstate;
+import java.util.List;
+import java.util.Map;
+
+public class Qlearning {
+	
+	HashMap<List,float> states;
+	
+	public Qlearning(){
+	 for(int i=2; i<21; i++){
+		 for (int j=2; i<11; i++){
+			 
+		 }
+	 }
+	}
+	
+
+}

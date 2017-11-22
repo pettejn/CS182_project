@@ -11,21 +11,16 @@ public class Qlearning {
 	public Qlearning(){
 		this.states = new HashMap();
 	 for(int i=2; i<21; i++){
-		 for (int j=2; j<11; j++){
-			 for (int action=1; action<4; action++){
+		 for (int j=2; i<11; j++){
+			 for (int action=1; action<4; k++){
+				
 			 states.put(new Qstate(new State(i, true, j), action), (double) 0);
-			 states.put(new Qstate(new State(i, false, j), action), (double) 0);
-			 System.out.println(i);
+			 
 			 }
 		 }
 	 }
 	}
 	
 
-	
-	public static void main(String[] args) {
-		Qlearning qlearning = new Qlearning();
-		System.out.println(qlearning.states);
-	}
 }
 

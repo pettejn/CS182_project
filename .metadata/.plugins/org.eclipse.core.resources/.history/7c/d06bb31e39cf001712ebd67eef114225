@@ -1,0 +1,24 @@
+package blackjack;
+
+public class State {
+	
+		private int sum;
+		private boolean ace;
+		private boolean dealerCard;
+
+		public State(int sum, boolean ace, int dealer){
+			this.sum = sum;
+			this.ace = ace;
+			this.dealerCard = dealerCard;
+			
+		}
+		
+		
+		public int getSum(){
+			return this.sum;
+		}
+		
+		public boolean getAce(){
+			return this.ace;
+		}
+}
