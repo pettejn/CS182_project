@@ -9,5 +9,21 @@ public class Qstate {
 		this.action = action;
 		this.state = state;
 	}
+	
+	public int getAction(){
+		return this.action;
+	}
+	
+	public State getState(){
+		return this.state;
+	}
+
+	@Override
+	public String toString() {
+		return "Qstate [state=" + state + ", action=" + action + "]";
+	}
+	
+	
+	
 
 }

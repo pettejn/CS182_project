@@ -1,0 +1,47 @@
+package blackjack;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+public class Qlearning {
+	
+	private HashMap<Qstate,Double> states;
+	private int iterations = 10000;
+	
+	public Qlearning(){
+		this.states = new HashMap();
+	 for(int i=2; i<21; i++){
+		 for (int j=2; j<11; j++){
+			 for (int action=0; action<2; action++){
+			 states.put(new Qstate(new State(i, true, j), action), (double) 0);
+			 states.put(new Qstate(new State(i, false, j), action), (double) 0);
+			 }
+		 }
+	 }
+	}
+	
+	private int epsilonGreedy(int e, State state){
+		
+	}
+	
+	private int greedy(State state){
+		return states.entrySet().stream().filter(map -> map.getKey().getState().equals(state)).
+				max((entry1, entry2) -> entry1.getValue() > entry2.getValue() ? 1 : -1).get().getKey().getAction();
+
+	}
+	
+	
+
+	
+	public static void main(String[] args) {
+		Qlearning qlearning = new Qlearning();
+		System.out.println(qlearning.states.size());
+		System.out.println(qlearning.states.entrySet().stream().filter(map -> map.getKey().getState().equals(new State(3,false,4))));
+		
+		System.out.println(qlearning.greedy(new State(3,false,4)));
+	}
+}
+
