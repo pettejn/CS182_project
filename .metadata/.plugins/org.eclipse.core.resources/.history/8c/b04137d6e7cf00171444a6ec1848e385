@@ -20,7 +20,7 @@ public class Qlearning {
 	public Qlearning(){
 		this.states = new HashMap();
 	 for(int i=2; i<22; i++){
-		 for (int j=1; j<14; j++){
+		 for (int j=2; j<11; j++){
 			 for (int action=0; action<2; action++){
 				 for (int k=0; k<2;k++){
 			 states.put(new Qstate(new State(i, k, j), action), (double) 0);
@@ -68,7 +68,6 @@ public class Qlearning {
 		while (list.get(3)==(double) 0){
 		list = blackjack.getState();
 		State state = new State(list.get(0),list.get(1),list.get(2));
-		System.out.println(state);
 		int action = this.epsilonGreedy(this.epsilon, state);
 		Qstate qstate = new Qstate(state, action);
 		Qstate real = this.findQstate(qstate);
@@ -88,6 +87,8 @@ public class Qlearning {
 	private Qstate findQstate(Qstate state){
 		for (Qstate name: this.states.keySet()){
 			if (name.getState().getSum()==state.getState().getSum() && name.getAction()==state.getAction() && name.getState().getAce()==state.getState().getAce() && name.getState().getDealer()==state.getState().getDealer()){
+				System.out.println(name);
+				System.out.println(state);
 				return name;
 			}
 		}	
@@ -103,14 +104,14 @@ public class Qlearning {
 		while (qlearning.iterations>0){
 			qlearning.iterations--;
 		qlearning.play();
-		for (Qstate name: qlearning.states.keySet()){
-
-            String key =name.toString();
-            String value = qlearning.states.get(name).toString(); 
-            if(qlearning.states.get(name)!=0){
-            System.out.println(key + " " + value);  
-            }
-		}
+//		for (Qstate name: qlearning.states.keySet()){
+//
+//            String key =name.toString();
+//            String value = qlearning.states.get(name).toString(); 
+//            if(qlearning.states.get(name)!=0){
+//            System.out.println(key + " " + value);  
+//            }
+//		}
 
 } }}
 

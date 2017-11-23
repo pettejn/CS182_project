@@ -68,7 +68,6 @@ public class Qlearning {
 		while (list.get(3)==(double) 0){
 		list = blackjack.getState();
 		State state = new State(list.get(0),list.get(1),list.get(2));
-		System.out.println(state);
 		int action = this.epsilonGreedy(this.epsilon, state);
 		Qstate qstate = new Qstate(state, action);
 		Qstate real = this.findQstate(qstate);
