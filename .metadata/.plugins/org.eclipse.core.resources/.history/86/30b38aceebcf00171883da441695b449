@@ -12,12 +12,11 @@ import javax.swing.text.html.HTMLDocument.Iterator;
 public class Qlearning {
 	
 	private HashMap<Qstate,Double> states;
-	private int iterations = 100000;
+	private int iterations = 3000;
 	private double epsilon = 0.9;
 	private double alpha = 0.9;
-	private double gamma = 1;
+	private double gamma = 0.9;
 	private int rewards=0;
-	private int victory=0;
 	
 	public Qlearning(){
 		this.states = new HashMap();
@@ -69,11 +68,8 @@ public class Qlearning {
 		List<Integer> list = blackjack.getState();
 		while (list.get(3)==(double) 0){
 		list = blackjack.getState();
-		//System.out.println(list);
+		System.out.println(list);
 		this.rewards+=list.get(3);
-		if(list.get(3)==1){
-			this.victory++;
-		}
 		State state = new State(list.get(0),list.get(1),list.get(2));
 		//System.out.println(state);
 		int action = this.epsilonGreedy(this.epsilon, state);
@@ -117,8 +113,7 @@ public class Qlearning {
 		
 		while (qlearning.iterations>0){
 			qlearning.iterations--;
-			if( qlearning.iterations==30000){
-				qlearning.alpha=0.001;
+			if( qlearning.iterations==2000){
 				qlearning.epsilon=0.001;
 			}
 		qlearning.play();
@@ -133,7 +128,6 @@ public class Qlearning {
 //		}
 		System.out.println(qlearning.rewards);
 		System.out.println(qlearning.states.size());
-		System.out.println(qlearning.victory);
 
 } }}
 

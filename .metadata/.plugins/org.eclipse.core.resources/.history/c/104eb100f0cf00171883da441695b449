@@ -15,7 +15,7 @@ public class Qlearning {
 	private int iterations = 100000;
 	private double epsilon = 0.9;
 	private double alpha = 0.9;
-	private double gamma = 1;
+	private double gamma = 0.9;
 	private int rewards=0;
 	private int victory=0;
 	

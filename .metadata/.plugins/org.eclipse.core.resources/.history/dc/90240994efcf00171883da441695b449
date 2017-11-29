@@ -15,7 +15,7 @@ public class Qlearning {
 	private int iterations = 100000;
 	private double epsilon = 0.9;
 	private double alpha = 0.9;
-	private double gamma = 1;
+	private double gamma = 0.9;
 	private int rewards=0;
 	private int victory=0;
 	
@@ -117,7 +117,7 @@ public class Qlearning {
 		
 		while (qlearning.iterations>0){
 			qlearning.iterations--;
-			if( qlearning.iterations==30000){
+			if( qlearning.iterations==3000){
 				qlearning.alpha=0.001;
 				qlearning.epsilon=0.001;
 			}
