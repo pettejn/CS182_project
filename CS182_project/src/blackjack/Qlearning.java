@@ -29,7 +29,7 @@ public class Qlearning {
 			 for (int action=0; action<3; action++){
 				 if(action == 2 && i<11){
 					 break;
-				 }
+				 }///hallo
 				 for (int k=0; k<2;k++){
 					 states.put(new Qstate(new State(i, k, j), action), (double) 0);
 			 //her må vi legge til action "2" for alle par som er like
