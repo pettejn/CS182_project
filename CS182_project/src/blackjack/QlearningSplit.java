@@ -11,34 +11,53 @@ import java.util.stream.Collectors;
 
 import javax.swing.text.html.HTMLDocument.Iterator;
 
-public class Qlearning {
+public class QlearningSplit {
 	
-	private HashMap<Qstate,Double> states;
+	private HashMap<QstateSplit,Double> states;
 	private int iterations = 50000;
 	private double epsilon = 0.8;
 	private double alpha = 0.8;
 	private double gamma =0.8;
 	private int rewards=0;
 	private int victory=0;
-	private HashMap<State,Integer> optimalPolicy;
+	private HashMap<StateSplit,Integer> optimalPolicy;
 	
-	public Qlearning(){
+	public QlearningSplit(){
 		this.states = new HashMap();
-	 for(int i=2; i<22; i++){
-		 for (int j=1; j<14; j++){
-			 for (int action=0; action<3; action++){
-				 if(action == 2 && i<11){
-					 break;
+	 for(int i=1; i<14; i++){
+		 for(int j=1; j<14; j++){
+			 for (int n=1; n<14; n++){
+				 for (int action=0; action<4; action++){
+					 int sum = getValue(i) + getValue(j);
+					 if(action == 2 && sum<11){
+						 break;
+					 }
+					 if(action==3 && !isPair(i,j)){
+						 break;
+					 }
+					 for (int k=0; k<2;k++){
+						 states.put(new QstateSplit(new StateSplit(sum, k, n,i,j), action), (double) 0);
+				 //new StateSplit(sum, ace, dealerCard,card1,card2)
+				 
+					}
 				 }
-				 for (int k=0; k<2;k++){
-					 states.put(new Qstate(new State(i, k, j), action), (double) 0);
-			 //her må vi legge til action "2" for alle par som er like
-			 
-				}
-			 }
 		 }
 	 }
+	 }
 	 //System.out.println(states);
+	}
+	
+	public int getValue(int card){
+		if(card >= 10 && card <=13){
+			return 10;
+		}
+		else{
+			return card;
+		}
+	}
+	
+	public boolean isPair(int card1, int card2){
+		return(card1==card2);
 	}
 	
 	public HashMap<State,Integer> getOptimalPolicy(){
