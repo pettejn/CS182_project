@@ -26,7 +26,7 @@ package blackjack;
 			this.pair = checkPair(card1,card2);
 			// System.out.println("card1 is " + card1);
 			// System.out.println("card2 is " + card2);
-			this.playerSum = getValue(card1) + getValue(card2);
+			this.playerSum = Math.min(getValue(card1) + getValue(card2), 18);
 			// System.out.println("player sum first is:" + playerSum);
 			if(checkAce(card1)==1||checkAce(card2)==1){
 				this.playerAce = 1;
@@ -53,7 +53,7 @@ package blackjack;
 		public Blackjack(int card, int dealerCard){
 			int card2 = getCard();
 			this.pair = checkPair(card,card2);
-			this.playerSum = getValue(card) + getValue(card2);
+			this.playerSum = Math.min(18, getValue(card) + getValue(card2));
 			if(checkAce(card)==1||checkAce(card2)==1){
 				this.playerAce = 1;
 			}
@@ -73,7 +73,7 @@ package blackjack;
 		
 		public List<Integer> getState(){
 			int reward=getReward();
-			ArrayList<Integer> output = new ArrayList<Integer>(Arrays.asList(playerSum, playerAce, dealerCard,reward));
+			ArrayList<Integer> output = new ArrayList<Integer>(Arrays.asList(playerSum, playerAce, dealerCard,pair,reward));
 			return output;
 		}
 		
@@ -92,14 +92,16 @@ package blackjack;
 		
 		//return list of two new objects. 
 		//if not possible to split,return a list with the this blackjack object
-		public List<Blackjack> Split(){
+		public List<Integer> Split(){
 			if(this.pair>0){
-				Blackjack split1 = new Blackjack(this.pair, this.dealerCard);
-				Blackjack split2 = new Blackjack(this.pair, this.dealerCard);
-				ArrayList<Blackjack> output = new ArrayList<Blackjack>(Arrays.asList(split1,split2));
+				//Blackjack split1 = new Blackjack(this.pair, this.dealerCard);
+				//Blackjack split2 = new Blackjack(this.pair, this.dealerCard);
+				//ArrayList<Blackjack> output = new ArrayList<Blackjack>(Arrays.asList(split1,split2));
+				//return output;
+				ArrayList<Integer> output = new ArrayList<Integer>(Arrays.asList(this.pair,this.dealerCard));
 				return output;
 			}
-			ArrayList<Blackjack> output = new ArrayList<Blackjack>(Arrays.asList(this));
+			ArrayList<Integer> output = new ArrayList<Integer>(Arrays.asList(playerSum, playerAce, dealerCard,pair,this.getReward()));
 			return output;
 		}
 		
@@ -113,7 +115,8 @@ package blackjack;
 				}
 				if(this.playerSum>21){
 					this.PlayersTurn=false;
-				}	
+				}
+				this.playerSum=Math.min(playerSum, 18);
 			}
 		}
 		
@@ -191,7 +194,7 @@ package blackjack;
 			if(action == 0){
 				this.Hit();
 				int reward=getReward();
-				ArrayList<Integer> output = new ArrayList<Integer>(Arrays.asList(playerSum, playerAce, dealerCard,reward));
+				ArrayList<Integer> output = new ArrayList<Integer>(Arrays.asList(playerSum, playerAce, dealerCard,pair,reward));
 				//System.out.println("you hit. Your card were "+ this.playerSum + "your reward were " + reward);
 				return output;
 			}
@@ -201,20 +204,43 @@ package blackjack;
 					this.DealerHit();
 				}
 				int reward=getReward();
-				ArrayList<Integer> output = new ArrayList<Integer>(Arrays.asList(playerSum, playerAce, dealerCard,reward));
+				ArrayList<Integer> output = new ArrayList<Integer>(Arrays.asList(playerSum, playerAce, dealerCard,pair,reward));
 				//System.out.println("you stand. Your card were "+ this.playerSum + "your reward were " + reward);
 				return output;
 			}
-			else{//aka actoin == 2 --> double
+			if(action ==2){ //double. Have to figure out how to count in rewards here
 				this.Double();
 				while(this.dealerSum<17 && this.playerSum<=21){
 					this.DealerHit();
 				}
 				int reward=getReward();
-				ArrayList<Integer> output = new ArrayList<Integer>(Arrays.asList(playerSum, playerAce, dealerCard,reward));
+				ArrayList<Integer> output = new ArrayList<Integer>(Arrays.asList(playerSum, playerAce, dealerCard,pair,reward));
 				//System.out.println("you doubled. Your card were "+ this.playerSum + "your reward were " + reward);
 				return output;
 			}
+			
+			else{//if action = 3 aka SPLIT
+				List<Integer> splitList = this.Split();
+				return splitList;
+				//if valid: get a list with two objects(split1 , split2)
+				//if not valid, returns the state you were in
+				//if(splitList.size()==2){ //if you didnt manageto split
+				//	return splitList;
+				//}
+				//Blackjack hand1 = splitList.get(0); //
+				//Blackjack hand2 = splitList.get(1); //
+				//List<Integer> state1 = hand1.getState();
+				//List<Integer> state2 = hand2.getState();
+				//int reward1= hand1.getReward();
+				//int reward2= hand2.getReward();
+				//state1.add(reward1);
+				//state1.addAll(state2);
+				//state1.add(reward2);
+				//return state1; //(playerSum,playerAce,dealerCard,pair,reward1,playerSum,playerAce,dealerCard,pair,reward2), size=10
+			
+			}
+		}
+		
 			
 			//else{
 			//	List<Blackjack> splitList = this.Split();
@@ -223,8 +249,7 @@ package blackjack;
 			//		return output;
 			//	}
 			//}
-		}
-		
+
 		public static void main(String[] args) {
 			Blackjack game = new Blackjack();
 			while(game.PlayersTurn == true){

@@ -5,11 +5,13 @@ public class State {
 		private int sum;
 		private int ace;
 		private int dealerCard;
+		private int isPair;
 
-		public State(int sum, int ace, int dealerCard){
+		public State(int sum, int ace, int dealerCard, int isPair){
 			this.sum = sum;
 			this.ace = ace;
 			this.dealerCard = dealerCard;
+			this.isPair = isPair;
 			
 		}
 		
@@ -24,6 +26,10 @@ public class State {
 		
 		public int getDealer(){
 			return this.ace;
+		}
+		
+		public int isPair(){
+			return this.isPair;
 		}
 
 
