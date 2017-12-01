@@ -24,8 +24,8 @@ package blackjack;
 			int card1 = getCard();
 			int card2 = getCard();
 			this.pair = checkPair(card1,card2);
-			//System.out.println("card1 is " + card1);
-			//System.out.println("card2 is " + card2);
+			System.out.println("card1 is " + card1);
+			System.out.println("card2 is " + card2);
 			this.playerSum = getValue(card1) + getValue(card2);
 			// System.out.println("player sum first is:" + playerSum);
 			if(checkAce(card1)==1||checkAce(card2)==1){
@@ -52,6 +52,8 @@ package blackjack;
 		//constructor 2 for splitting.
 		public Blackjack(int card, int dealerCard){
 			int card2 = getCard();
+			System.out.println("card1 after splitting" + card);
+			System.out.println("card2 after splitting" + card2);
 			this.pair = checkPair(card,card2);
 			this.playerSum =getValue(card) + getValue(card2);
 			if(checkAce(card)==1||checkAce(card2)==1){
@@ -68,6 +70,10 @@ package blackjack;
 			if(this.dealerAce==1){
 				this.dealerSum += 10;
 			}
+		}
+		
+		public int getDealerSum(){
+			return this.dealerSum;
 		}
 		
 		
@@ -197,6 +203,7 @@ package blackjack;
 
 		public List<Integer> makeMove(int action){
 			if(action == 0){
+				System.out.println("hitting");
 				this.Hit();
 				int reward=getReward();
 				ArrayList<Integer> output = new ArrayList<Integer>(Arrays.asList(playerSum, playerAce, dealerCard,pair,reward));
@@ -204,6 +211,7 @@ package blackjack;
 				return output;
 			}
 			if(action == 1){
+				System.out.println("standing");
 				this.Stand();
 				while(this.dealerSum<17 && this.playerSum<=21){
 					this.DealerHit();
@@ -214,6 +222,7 @@ package blackjack;
 				return output;
 			}
 			if(action ==2){ //double. Have to figure out how to count in rewards here
+				System.out.println("doubling");
 				this.Double();
 				while(this.dealerSum<17 && this.playerSum<=21){
 					this.DealerHit();
@@ -225,6 +234,7 @@ package blackjack;
 				return output;
 			}
 			else{//if action = 3 aka SPLIT
+				System.out.println("splitting");
 				List<Integer> splitList = this.Split();
 				return splitList;
 				//if valid: get a list with two objects(split1 , split2)

@@ -14,7 +14,7 @@ import javax.swing.text.html.HTMLDocument.Iterator;
 public class Qlearning {
 	
 	private HashMap<Qstate,Double> states;
-	private int iterations = 3000;
+	private int iterations = 10;
 	private double epsilon = 0.8;
 	private double alpha = 0.8;
 	private double gamma =0.8;
@@ -291,25 +291,26 @@ public class Qlearning {
 			list = blackjack.getState();
 			//System.out.println("list " + list);
 			this.rewards+=list.get(4);
-			if(list.get(4)==1 || list.get(4)==2){
+			if(list.get(4)>0){
 				this.victory++;
 			}
 			State state = new State(list.get(0),list.get(1),list.get(2),Math.min(list.get(3),1));
 			//System.out.println("state" + state);
 			//System.out.println(state);
-			//System.out.println("split"+ this.split);
+			System.out.println("split: "+ this.split);
 			int action = this.epsilonGreedy(this.epsilon, state);
-			//System.out.println("action" + action);
+			System.out.println("action: " + action);
 			Qstate qstate = new Qstate(state, action);
-			//System.out.println("qstate here " + qstate);
+			System.out.println("qstate here " + qstate);
 			Qstate real = this.findQstate(qstate);//DEALERCARD CHANGES!!!
 			//System.out.println("real" + real);
 			if (real == null){
+				System.out.println("you breaked because real==null ");
 				break;
 			}
 			//System.out.println("real" + real);
 			if (list.get(4)!=0){
-				//System.out.println("ended cause reward not 0");
+				System.out.println("ended cause reward not 0");
 				this.states.put(real, ((this.states.get(real) + alpha*(list.get(4)-this.states.get(real)))));
 				break;
 			}
@@ -329,15 +330,21 @@ public class Qlearning {
 			else{
 				list = blackjack.makeMove(action);
 				//System.out.println("reward" + list.get(4));
-				//System.out.println(list);
 				State newstate = new State(list.get(0),list.get(1),list.get(2),Math.min(list.get(3),1)); 
-				//System.out.println("new " + newstate);
+				System.out.println("new state after action: " + newstate);
+				System.out.println("dealerSum: " + blackjack.getDealerSum());
+				System.out.println("full state: " + list);
 				if( newstate.getSum()>21){ //use gameover here?
 					//is it wrong to put list here? shouldn it be newlist?
+					System.out.println("old value: " + this.states.get(real));
+					System.out.println("updated value: " + this.states.get(real) + alpha*(list.get(4)-this.states.get(real)));
 					this.states.put(real, ((this.states.get(real) + alpha*(list.get(4)-this.states.get(real)))));	
 				} else{
 					//System.out.println(newstate);
 					//System.out.println(this.findQstate( new Qstate(newstate, 0)));
+					System.out.println("old value: " + this.states.get(real));
+					double y = (this.states.get(real) + alpha*(list.get(4) + gamma*Math.max(this.states.get(this.findQstate( new Qstate(newstate, 0))), this.states.get(this.findQstate(new Qstate(newstate, 1)))))-this.states.get(real));
+					System.out.println("updated value: " + y);
 				this.states.put(real, (this.states.get(real) + alpha*(list.get(4) + gamma*Math.max(this.states.get(this.findQstate( new Qstate(newstate, 0))), this.states.get(this.findQstate(new Qstate(newstate, 1)))))-this.states.get(real)));
 				//have to modify this one to take action=2 into consideration
 			}
@@ -363,7 +370,6 @@ public class Qlearning {
 		Qlearning qlearning = new Qlearning();
 		while (qlearning.iterations>0){
 			qlearning.iterations--;
-			System.out.println(qlearning.iterations);
 			if( qlearning.iterations==1000){
 				qlearning.alpha=0.05;
 				qlearning.epsilon=0.05;
@@ -385,13 +391,13 @@ public class Qlearning {
 		
 		}
 		//qlearning.getOptimalPolicy();
-		for (Qstate name: qlearning.states.keySet()){
-		    //String value = qlearning.states.get(name).toString(); 
-				if(name.getAction()==3){
-					System.out.println(name);
-					System.out.println("VALUE ON DOUBLE:" + qlearning.states.get(name));
-				}
-				}
+//		for (Qstate name: qlearning.states.keySet()){
+//		    //String value = qlearning.states.get(name).toString(); 
+//				if(name.getAction()==3){
+//					System.out.println(name);
+//					System.out.println("VALUE ON DOUBLE:" + qlearning.states.get(name));
+//				}
+//		}
 		
 	}
 
