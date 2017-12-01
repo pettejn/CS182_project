@@ -25,7 +25,7 @@ public class State {
 		}
 		
 		public int getDealer(){
-			return this.ace;
+			return this.dealerCard;
 		}
 		
 		public int isPair(){

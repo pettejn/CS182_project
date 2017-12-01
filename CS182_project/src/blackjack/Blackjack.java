@@ -24,8 +24,8 @@ package blackjack;
 			int card1 = getCard();
 			int card2 = getCard();
 			this.pair = checkPair(card1,card2);
-			System.out.println("card1 is " + card1);
-			System.out.println("card2 is " + card2);
+			//System.out.println("card1 is " + card1);
+			//System.out.println("card2 is " + card2);
 			this.playerSum = getValue(card1) + getValue(card2);
 			// System.out.println("player sum first is:" + playerSum);
 			if(checkAce(card1)==1||checkAce(card2)==1){
@@ -139,7 +139,7 @@ package blackjack;
 		}
 		
 		public void Double(){
-			System.out.println("You double");
+			//System.out.println("You double");
 			if(this.playerSum>=11){
 				this.Hit();
 				this.Stand();
@@ -219,7 +219,7 @@ package blackjack;
 					this.DealerHit();
 				}
 				int reward=getReward();
-				System.out.println("reward by doubling" + reward);
+				//System.out.println("reward by doubling" + reward);
 				ArrayList<Integer> output = new ArrayList<Integer>(Arrays.asList(playerSum, playerAce, dealerCard,pair,reward));
 				//System.out.println("you doubled. Your card were "+ this.playerSum + "your reward were " + reward);
 				return output;
