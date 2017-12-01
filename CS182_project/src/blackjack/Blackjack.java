@@ -9,14 +9,14 @@ package blackjack;
 
 	public class Blackjack {
 		
-		private int playerSum = 0;
+		private int playerSum = 0; //nb, player sum never bigger than 18
 		private int dealerCard = 0;
 		private int playerAce = 0;
 		private int dealerAce = 0;
 		private boolean PlayersTurn = true;
 		private int dealerSum = 0;
 		private int doubleReward = 1;
-		private int pair = 0; //value of card in pair
+		private int pair = 0; //value of card in pair.
 	
 
 		//normal constructor 
@@ -24,9 +24,9 @@ package blackjack;
 			int card1 = getCard();
 			int card2 = getCard();
 			this.pair = checkPair(card1,card2);
-			// System.out.println("card1 is " + card1);
-			// System.out.println("card2 is " + card2);
-			this.playerSum = Math.min(getValue(card1) + getValue(card2), 18);
+			System.out.println("card1 is " + card1);
+			System.out.println("card2 is " + card2);
+			this.playerSum = getValue(card1) + getValue(card2);
 			// System.out.println("player sum first is:" + playerSum);
 			if(checkAce(card1)==1||checkAce(card2)==1){
 				this.playerAce = 1;
@@ -53,7 +53,7 @@ package blackjack;
 		public Blackjack(int card, int dealerCard){
 			int card2 = getCard();
 			this.pair = checkPair(card,card2);
-			this.playerSum = Math.min(18, getValue(card) + getValue(card2));
+			this.playerSum =getValue(card) + getValue(card2);
 			if(checkAce(card)==1||checkAce(card2)==1){
 				this.playerAce = 1;
 			}
@@ -106,8 +106,12 @@ package blackjack;
 		}
 		
 		public void Hit(){
+			this.pair = 0;
 			if(!gameOver() && this.PlayersTurn==true){
 				int card = getCard();
+				if(this.playerAce==0){
+					this.playerAce = checkAce(card);
+				}
 				this.playerSum += getValue(card);
 				if(this.playerSum > 21 && this.playerAce == 1){
 					this.playerSum -= 10;
@@ -116,7 +120,7 @@ package blackjack;
 				if(this.playerSum>21){
 					this.PlayersTurn=false;
 				}
-				this.playerSum=Math.min(playerSum, 18);
+				//this.playerSum=Math.min(playerSum, 18);
 			}
 		}
 		
@@ -135,6 +139,7 @@ package blackjack;
 		}
 		
 		public void Double(){
+			System.out.println("You double");
 			if(this.playerSum>=11){
 				this.Hit();
 				this.Stand();
@@ -214,11 +219,11 @@ package blackjack;
 					this.DealerHit();
 				}
 				int reward=getReward();
+				System.out.println("reward by doubling" + reward);
 				ArrayList<Integer> output = new ArrayList<Integer>(Arrays.asList(playerSum, playerAce, dealerCard,pair,reward));
 				//System.out.println("you doubled. Your card were "+ this.playerSum + "your reward were " + reward);
 				return output;
 			}
-			
 			else{//if action = 3 aka SPLIT
 				List<Integer> splitList = this.Split();
 				return splitList;

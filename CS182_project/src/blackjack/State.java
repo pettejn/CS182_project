@@ -35,7 +35,7 @@ public class State {
 
 		@Override
 		public String toString() {
-			return "State [sum=" + sum + ", ace=" + ace + ", dealerCard=" + dealerCard + "]";
+			return "State [sum=" + sum + ", ace=" + ace + ", dealerCard=" + dealerCard + ", Pair=" + this.isPair() + "]";
 		}
 		
 		

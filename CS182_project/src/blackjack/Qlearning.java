@@ -14,7 +14,7 @@ import javax.swing.text.html.HTMLDocument.Iterator;
 public class Qlearning {
 	
 	private HashMap<Qstate,Double> states;
-	private int iterations = 50000;
+	private int iterations = 50;
 	private double epsilon = 0.8;
 	private double alpha = 0.8;
 	private double gamma =0.8;
@@ -41,26 +41,25 @@ public class Qlearning {
 		//		 }
 		//	 }
 
-		for (int k=1; k<11;k++){
+		for (int k=1; k<14;k++){
 			for (int action=0; action<4;action++ ){
-				for (int i=4; i<21;i++){
+				for (int i=1; i<22;i++){
 					if(action == 2 && i<11){
-						break;
+						continue;
 					}
 					if (i%2==0){
 						this.states.put(new Qstate(new State(i, 0, k, 1), action), (double) 0);
 
 					}
-					if (i>13 && i<21){
+					if (i>1 && i<22){
 						this.states.put(new Qstate(new State(i, 1, k, 0), action), (double) 0);
 					}
-					if (i>4 && i<19){
+					if (i>4 && i<22){
 						this.states.put(new Qstate(new State(i, 0, k, 0), action), (double) 0);
 					}
 
 				}
 				this.states.put(new Qstate(new State(2, 1, k, 1), action), (double) 0);
-
 			}
 		}
 		//System.out.println(states);
@@ -69,22 +68,18 @@ public class Qlearning {
 	public HashMap<State,Integer> getOptimalPolicy(){
 		this.optimalPolicy = new HashMap();
 		for (int k=1; k<11;k++){
-
-				for (int i=4; i<21;i++){
-					if (i%2==0){
-						this.optimalPolicy.put(new State(i, 0, k, 1), (int) 0);
-
-					}
-					if (i>13 && i<21){
-						this.optimalPolicy.put(new State(i, 1, k, 0), (int) 0);
-					}
-					if (i>4 && i<19){
-						this.optimalPolicy.put(new State(i, 0, k, 0), (int) 0);
-					}
-
+			for (int i=4; i<22;i++){
+				if (i%2==0){
+					this.optimalPolicy.put(new State(i, 0, k, 1), (int) 0);
 				}
-				this.optimalPolicy.put(new State(2, 1, k, 1), (int) 0);
-
+				if (i>13 && i<22){
+					this.optimalPolicy.put(new State(i, 1, k, 0), (int) 0);
+				}
+				if (i>4 && i<22){
+					this.optimalPolicy.put(new State(i, 0, k, 0), (int) 0);
+				}
+			}
+			this.optimalPolicy.put(new State(2, 1, k, 1), (int) 0);
 		}
 		//System.out.println(states);
 //
@@ -99,9 +94,10 @@ public class Qlearning {
 		for (State key : this.optimalPolicy.keySet()) {
 			int action = greedy(key);
 			this.optimalPolicy.put(key, action);
-			if (key.getSum()==15){
+			if (this.optimalPolicy.get(key)==2){
 			System.out.println("this is action to put on key: " + key + "with action "+ optimalPolicy.get(key));
 			}
+			
 		}
 
 		return this.optimalPolicy;
@@ -110,73 +106,10 @@ public class Qlearning {
 	//choose random action with probability epsilon, else argmax Q(s,a)
 	private int epsilonGreedy(double epsilon, State state){
 		if (new Random().nextDouble() <= epsilon){
-			if(state.getSum()<11 && state.isPair()==0){
-				if (new Random().nextDouble() <=0.5){ 
-					return 0;
-				}
-				else{
-					return 1;
-				}
-			}
-			if(state.getSum()<11 && state.isPair()==1 && this.split==0){
+			if(state.getSum()>=11 && state.isPair()>0 && this.split==0){//YOU CAN DO ALL ACTIONS
+				System.out.println("All acti");
 				double y = new Random().nextDouble();
-				if (y <=0.35){ 
-					return 0;
-				}
-				if(y > 0.35 && y < 0.7){
-					return 1;
-				}
-				else{
-					return 3;
-				}
-			}
-			if(state.getSum()>=11 && state.isPair()==0 && this.split==0){
-				double y = new Random().nextDouble();
-				if (y <=0.35){ 
-					return 0;
-				}
-				if(y > 0.35 && y < 0.7){
-					return 1;
-				}
-				else{
-					return 2;
-				}
-			}
-			if(state.getSum()<11 && state.isPair()==0 && this.split==0){
-				if (new Random().nextDouble() <=0.5){ 
-					return 0;
-				}
-				else{
-					return 1;
-				}
-			}
-			if(state.getSum()>=11 && state.isPair()==0){
-				double y = new Random().nextDouble();
-				if (y <=0.35){ 
-					return 0;
-				}
-				if(y > 0.35 && y < 0.7){
-					return 1;
-				}
-				else{
-					return 2;
-				}
-			}
-			if(state.getSum()>=11 && state.isPair()==1 && this.split==1){
-				double y = new Random().nextDouble();
-				if (y <=0.35){ 
-					return 0;
-				}
-				if(y > 0.35 && y < 0.7){
-					return 1;
-				}
-				else{
-					return 2;
-				}
-			}
-			else{
-				double y = new Random().nextDouble();
-				System.out.println("y is" + y);
+				System.out.println("y"+ y);
 				if (y <=0.25){ 
 					return 0;
 				}
@@ -187,11 +120,68 @@ public class Qlearning {
 					return 2;
 				}
 				else{
-					System.out.println("HEI");
+					//System.out.println("her er vi 2");
 					return 3;
 				}
 			}
+			if(state.getSum()<11 && state.isPair()==0){//YOU CAN ONLY HIT OR STAND
+				System.out.println("only two acti");
+				if (new Random().nextDouble() <=0.5){ 
+					return 0;
+				}
+				else{
+					return 1;
+				}
+			}
+			if(state.getSum()>=11){//the case is that you can double but not split(or else the two above would work)
+				System.out.println("double good");
+				double y = new Random().nextDouble();
+				System.out.println("y"+ y);
+				if (y <=0.35){ 
+					return 0;
+				}
+				if(y > 0.35 && y < 0.7){
+					return 1;
+				}
+				else{
+					return 2;
+				}
+			}
+			if(state.isPair()>0 && this.split==0){ //you have a pair and can split
+				System.out.println("split good");
+				double y = new Random().nextDouble();
+				System.out.println("y"+ y);
+				if (y <=0.35){ 
+					return 0;
+				}
+				if(y > 0.35 && y < 0.7){
+					return 1;
+				}
+				else{
+					//System.out.println("her er vi 1");
+					return 3;
+				}
+			}
+			if(state.isPair()>0 && this.split==1){
+				System.out.println("split no good");
+				if (new Random().nextDouble() <=0.5){ 
+					return 0;
+				}
+				else{
+					return 1;
+				}
+			}
+			else{
+				System.out.println("HER ER VI");
+				if (new Random().nextDouble() <=0.5){ 
+					return 0;
+				}
+				else{
+					return 1;
+				}
+			}
 		}
+		System.out.println("her er vi");
 		return this.greedy(state);
 	}
 	
@@ -202,10 +192,14 @@ public class Qlearning {
 	}
 	
 	private int greedy(State state){
+		//System.out.println("HER");
 		double value = -100; 
 		int action = 0;
 		for (Qstate key : this.states.keySet()) {
 			if (key.equals(this.findQstate(new Qstate(state, key.getAction()))) && this.states.get(key)>value){
+				if(key.getAction()==3 && this.split==1){
+					return action;
+				}
 				value = this.states.get(key);
 				action = key.getAction();
 				//System.out.println(action);
@@ -226,7 +220,11 @@ public class Qlearning {
 				this.victory++;
 			}
 			State state = new State(list.get(0),list.get(1),list.get(2),list.get(3));
+			//System.out.println("sum"+state.getSum());
+			//System.out.println("pair"+state.isPair());
+			//System.out.println("split"+this.split);
 			int action = this.epsilonGreedy(this.epsilon, state);
+			//System.out.println("action" + action);
 			Qstate qstate = new Qstate(state, action);
 			Qstate real = this.findQstate(qstate);
 			if (real == null){
@@ -237,7 +235,6 @@ public class Qlearning {
 				break;
 			}
 			List<Integer> newList = blackjack.makeMove(action);
-			System.out.println("action" + action);
 			State newstate = new State(newList.get(0),newList.get(1),newList.get(2),newList.get(3)); 
 			if( newstate.getSum()>21){ 
 				this.states.put(real, ((this.states.get(real) + alpha*(newList.get(4)-this.states.get(real)))));	
@@ -254,19 +251,24 @@ public class Qlearning {
 		//for(int i=1;i<3;i++)
 		while (list.get(4)==(double)0 && this.split==0){	
 			list = blackjack.getState();
+			System.out.println("list " + list);
 			this.rewards+=list.get(4);
 			if(list.get(4)==1 || list.get(4)==2){
 				this.victory++;
 			}
-			State state = new State(list.get(0),list.get(1),list.get(2),list.get(3));
+			State state = new State(list.get(0),list.get(1),list.get(2),Math.min(list.get(3),1));
+			System.out.println("state" + state);
 			//System.out.println(state);
+			System.out.println("split"+ this.split);
 			int action = this.epsilonGreedy(this.epsilon, state);
+			System.out.println("action" + action);
 			Qstate qstate = new Qstate(state, action);
+			System.out.println("qstate here " + qstate);
 			Qstate real = this.findQstate(qstate);
+			System.out.println("real" + real);
 			if (real == null){
 				break;
 			}
-			//System.out.println("q" +qstate);
 			//System.out.println("real" + real);
 			if (list.get(4)!=0){
 				this.states.put(real, ((this.states.get(real) + alpha*(list.get(4)-this.states.get(real)))));
@@ -286,12 +288,17 @@ public class Qlearning {
 			}
 			else{
 				List<Integer> newList = blackjack.makeMove(action);
-				State newstate = new State(newList.get(0),newList.get(1),newList.get(2),newList.get(3)); 
+				System.out.println("reward" + newList.get(4));
+				System.out.println(newList);
+				State newstate = new State(newList.get(0),newList.get(1),newList.get(2),Math.min(newList.get(3),1)); 
 				//System.out.println("new " + newstate);
 				if( newstate.getSum()>21){ //use gameover here?
 					//is it wrong to put list here? shouldn it be newlist?
 					this.states.put(real, ((this.states.get(real) + alpha*(newList.get(4)-this.states.get(real)))));	
 				} else{
+					System.out.println("HEII!!");
+					System.out.println(newstate);
+					System.out.println(this.findQstate( new Qstate(newstate, 0)));
 				this.states.put(real, (this.states.get(real) + alpha*(newList.get(4) + gamma*Math.max(this.states.get(this.findQstate( new Qstate(newstate, 0))), this.states.get(this.findQstate(new Qstate(newstate, 1)))))-this.states.get(real)));
 				//have to modify this one to take action=2 into consideration
 			}
@@ -305,7 +312,7 @@ public class Qlearning {
 	// Returns a Qstate-object
 	private Qstate findQstate(Qstate state){
 		for (Qstate name: this.states.keySet()){
-			if (name.getState().getSum()==state.getState().getSum() && name.getAction()==state.getAction() && name.getState().getAce()==state.getState().getAce() && name.getState().getDealer()==state.getState().getDealer()){
+			if (name.getState().isPair()==state.getState().isPair() && name.getState().getSum()==state.getState().getSum() && name.getAction()==state.getAction() && name.getState().getAce()==state.getState().getAce() && name.getState().getDealer()==state.getState().getDealer()){
 				return name;
 			}
 		}	
@@ -317,9 +324,9 @@ public class Qlearning {
 		Qlearning qlearning = new Qlearning();
 		while (qlearning.iterations>0){
 			qlearning.iterations--;
-			if( qlearning.iterations==20000){
-				qlearning.alpha=0.01;
-				qlearning.epsilon=0.01;
+			if( qlearning.iterations==60){
+				qlearning.alpha=0.05;
+				qlearning.epsilon=0.05;
 			}
 			qlearning.play();
 			//System.out.println(qlearning.states.values());
@@ -338,6 +345,14 @@ public class Qlearning {
 		
 		}
 		qlearning.getOptimalPolicy();
+//		for (Qstate name: qlearning.states.keySet()){
+//		    //String value = qlearning.states.get(name).toString(); 
+//				if(name.getAction()==2){
+//					System.out.println(name);
+//					System.out.println("VALUE ON DOUBLE:" + qlearning.states.get(name));
+//				}
+//				}
+//		
 	}
 
 }
