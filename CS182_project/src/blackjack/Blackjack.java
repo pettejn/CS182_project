@@ -66,7 +66,7 @@ package blackjack;
 		
 		public List<Integer> getState(){
 			int reward=getReward();
-			ArrayList<Integer> output = new ArrayList<Integer>(Arrays.asList(playerSum, playerAce, dealerCard,pair,reward));
+			ArrayList<Integer> output = new ArrayList<Integer>(Arrays.asList(this.playerSum, this.playerAce, Math.min(10, this.dealerCard) ,this.pair,reward));
 			return output;
 		}
 		
@@ -85,7 +85,7 @@ package blackjack;
 		
 		
 		public List<Integer> Split(){
-			return new ArrayList<Integer>(Arrays.asList(this.playerCard,this.dealerCard));
+			return new ArrayList<Integer>(Arrays.asList(this.playerCard,Math.min(10, this.dealerCard)));
 		}
 		
 		public void Hit(){
