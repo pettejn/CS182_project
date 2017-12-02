@@ -13,6 +13,8 @@ import javax.swing.text.html.HTMLDocument.Iterator;
 
 public class Qlearning {
 	
+	// NOTE TO PETTER! We now have the possbility to split if our sum is an even number... problem
+	
 	private HashMap<Qstate,Double> states;
 	private int iterations = 10;
 	private double epsilon = 0.8;
@@ -147,7 +149,6 @@ public class Qlearning {
 					return 2;
 				}
 				else{
-					//System.out.println("her er vi 2");
 					return 3;
 				}
 			}
@@ -185,7 +186,6 @@ public class Qlearning {
 					return 1;
 				}
 				else{
-					//System.out.println("her er vi 1");
 					return 3;
 				}
 			}
@@ -219,7 +219,6 @@ public class Qlearning {
 	}
 	
 	private int greedy(State state){
-		//System.out.println("HER");
 		double value = -100; 
 		int action = 0;
 		for (Qstate key : this.states.keySet()) {
@@ -252,9 +251,11 @@ public class Qlearning {
 			//System.out.println("sum"+state.getSum());
 			//System.out.println("pair"+state.isPair());
 			//System.out.println("split"+this.split);
+			System.out.println("split: "+ this.split);
 			int action = this.epsilonGreedy(this.epsilon, state);
-			//System.out.println("action" + action);
+			System.out.println("action: " + action);
 			Qstate qstate = new Qstate(state, action);
+			System.out.println("qstate: "+ qstate);
 			Qstate real = this.findQstate(qstate);
 			if (real == null){
 				break;
@@ -270,6 +271,9 @@ public class Qlearning {
 			}
 			List<Integer> newList = blackjack.makeMove(action);
 			State newstate = new State(newList.get(0),newList.get(1),newList.get(2),newList.get(3)); 
+			System.out.println("new state after action: " + newstate);
+			System.out.println("dealerSum: " + blackjack.getDealerSum());
+			System.out.println("full state: " + list);
 			if( newstate.getSum()>21){ 
 				this.states.put(real, ((this.states.get(real) + alpha*(newList.get(4)-this.states.get(real)))));	
 			} 
@@ -311,6 +315,8 @@ public class Qlearning {
 			//System.out.println("real" + real);
 			if (list.get(4)!=0){
 				System.out.println("ended cause reward not 0");
+				System.out.println("old value for : " + real +"is:"+ this.states.get(real));
+				System.out.println("updated value for : " + real +"is:"+ (this.states.get(real) + alpha*(list.get(4)-this.states.get(real))));
 				this.states.put(real, ((this.states.get(real) + alpha*(list.get(4)-this.states.get(real)))));
 				break;
 			}
@@ -323,8 +329,12 @@ public class Qlearning {
 				Blackjack blackjack2 = new Blackjack(newList.get(0),newList.get(1));
 				this.split = 1;
 				this.amountSplits++;
+				System.out.println("playing first split hand");
 				double reward1 = playSplit(blackjack1);
+				System.out.println("playing second split hand");
 				double reward2 = playSplit(blackjack2);
+				System.out.println("old value for: " + real +"is:"+ this.states.get(real));
+				System.out.println("updated value for: " + real +"is:"+ ((this.states.get(real) + alpha*((reward1+reward2)-this.states.get(real)))));
 				this.states.put(real, ((this.states.get(real) + alpha*((reward1+reward2)-this.states.get(real)))));
 			}
 			else{
@@ -336,17 +346,17 @@ public class Qlearning {
 				System.out.println("full state: " + list);
 				if( newstate.getSum()>21){ //use gameover here?
 					//is it wrong to put list here? shouldn it be newlist?
-					System.out.println("old value: " + this.states.get(real));
-					System.out.println("updated value: " + this.states.get(real) + alpha*(list.get(4)-this.states.get(real)));
+					System.out.println("old value for: "+ real +"is:" + this.states.get(real));
+					System.out.println("updated valuefor : " + real +"is:"+ (this.states.get(real) + alpha*(list.get(4)-this.states.get(real))));
 					this.states.put(real, ((this.states.get(real) + alpha*(list.get(4)-this.states.get(real)))));	
 				} else{
 					//System.out.println(newstate);
 					//System.out.println(this.findQstate( new Qstate(newstate, 0)));
-					System.out.println("old value: " + this.states.get(real));
-					double y = (this.states.get(real) + alpha*(list.get(4) + gamma*Math.max(this.states.get(this.findQstate( new Qstate(newstate, 0))), this.states.get(this.findQstate(new Qstate(newstate, 1)))))-this.states.get(real));
-					System.out.println("updated value: " + y);
-				this.states.put(real, (this.states.get(real) + alpha*(list.get(4) + gamma*Math.max(this.states.get(this.findQstate( new Qstate(newstate, 0))), this.states.get(this.findQstate(new Qstate(newstate, 1)))))-this.states.get(real)));
-				//have to modify this one to take action=2 into consideration
+					System.out.println("old value for: " + real +"is:"+ this.states.get(real));
+					double y = ((this.states.get(real) + alpha*(list.get(4) + gamma*Math.max(this.states.get(this.findQstate( new Qstate(newstate, 0))), this.states.get(this.findQstate(new Qstate(newstate, 1)))))-this.states.get(real)));
+					System.out.println("updated value for: " + real +"is:"+ y);
+					this.states.put(real, (this.states.get(real) + alpha*(list.get(4) + gamma*Math.max(this.states.get(this.findQstate( new Qstate(newstate, 0))), this.states.get(this.findQstate(new Qstate(newstate, 1)))))-this.states.get(real)));
+					//have to modify this one to take action=2 into consideration
 			}
 		}
 		}	

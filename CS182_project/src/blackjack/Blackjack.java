@@ -52,8 +52,8 @@ package blackjack;
 		//constructor 2 for splitting.
 		public Blackjack(int card, int dealerCard){
 			int card2 = getCard();
-			System.out.println("card1 after splitting" + card);
-			System.out.println("card2 after splitting" + card2);
+			System.out.println("card1 after splitting: " + card);
+			System.out.println("card2 after splitting: " + card2);
 			this.pair = checkPair(card,card2);
 			this.playerSum =getValue(card) + getValue(card2);
 			if(checkAce(card)==1||checkAce(card2)==1){
