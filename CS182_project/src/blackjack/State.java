@@ -31,6 +31,10 @@ public class State {
 		public int isPair(){
 			return this.isPair;
 		}
+		
+		public void setPair(){
+			this.isPair=0;
+		}
 
 
 		@Override

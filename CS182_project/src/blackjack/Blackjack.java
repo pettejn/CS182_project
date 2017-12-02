@@ -24,51 +24,32 @@ package blackjack;
 			int card1 = getCard();
 			int card2 = getCard();
 			this.pair = checkPair(card1,card2);
-			System.out.println("card1 is " + card1);
-			System.out.println("card2 is " + card2);
 			this.playerSum = getValue(card1) + getValue(card2);
-			// System.out.println("player sum first is:" + playerSum);
+			if( this.playerSum==22){
+				this.playerSum = 12;
+			}
 			if(checkAce(card1)==1||checkAce(card2)==1){
 				this.playerAce = 1;
 			}
-			if(this.playerAce==1){
-				this.playerSum += 10;
-			}
-			//System.out.println("player sum ace is:" + playerSum);
 			this.dealerCard = getCard();
-			//System.out.println("dealercard is " + dealerCard);
 			this.dealerSum = getValue(this.dealerCard);
-			//System.out.println("dealer sum first is:" + dealerSum);
 			if(checkAce(this.dealerCard)==1){
 				this.dealerAce = 1;
 			}
-			if(this.dealerAce==1){
-				this.dealerSum += 10;
-			}
-			//System.out.println("dealer sum ace is:" + dealerSum);
-			
 		}
 		
 		//constructor 2 for splitting.
 		public Blackjack(int card, int dealerCard){
 			int card2 = getCard();
-			System.out.println("card1 after splitting: " + card);
-			System.out.println("card2 after splitting: " + card2);
 			this.pair = checkPair(card,card2);
 			this.playerSum =getValue(card) + getValue(card2);
 			if(checkAce(card)==1||checkAce(card2)==1){
 				this.playerAce = 1;
 			}
-			if(this.playerAce==1){
-				this.playerSum += 10;
-			}
 			this.dealerCard = dealerCard;
-			this.dealerSum = getValue(dealerCard);
+			this.dealerSum = this.getValue(dealerCard);
 			if(checkAce(this.dealerCard)==1){
 				this.dealerAce = 1;
-			}
-			if(this.dealerAce==1){
-				this.dealerSum += 10;
 			}
 		}
 		
@@ -85,7 +66,7 @@ package blackjack;
 		
 		public int checkPair(int card1, int card2){
 			if (card1 == card2){
-				return card1;
+				return 1;
 			}
 			return 0;
 		}
@@ -96,14 +77,9 @@ package blackjack;
 			return cardValue;
 		}
 		
-		//return list of two new objects. 
-		//if not possible to split,return a list with the this blackjack object
+		
 		public List<Integer> Split(){
 			if(this.pair>0){
-				//Blackjack split1 = new Blackjack(this.pair, this.dealerCard);
-				//Blackjack split2 = new Blackjack(this.pair, this.dealerCard);
-				//ArrayList<Blackjack> output = new ArrayList<Blackjack>(Arrays.asList(split1,split2));
-				//return output;
 				ArrayList<Integer> output = new ArrayList<Integer>(Arrays.asList(this.pair,this.dealerCard));
 				return output;
 			}
@@ -126,7 +102,6 @@ package blackjack;
 				if(this.playerSum>21){
 					this.PlayersTurn=false;
 				}
-				//this.playerSum=Math.min(playerSum, 18);
 			}
 		}
 		
@@ -145,7 +120,6 @@ package blackjack;
 		}
 		
 		public void Double(){
-			//System.out.println("You double");
 			if(this.playerSum>=11){
 				this.Hit();
 				this.Stand();
@@ -162,29 +136,16 @@ package blackjack;
 		
 		public int getReward(){
 			if(gameOver()){
-				if(this.playerSum>21){
-					return -1*this.doubleReward;
-				}
-				if(this.playerSum<= 21 && this.dealerSum>21){
-					return 1*this.doubleReward;
-				}
-				if((this.dealerSum>=this.playerSum)&&(this.dealerSum<=21)&&(this.playerSum<=21)){
-					return -1*this.doubleReward;
-				}
-				if((this.playerSum>=this.dealerSum)&&(this.playerSum<=21)&&(this.dealerSum<=21)){
-					return 1*this.doubleReward;
-				}
+				return this.playerSum < 22 ? (this.dealerSum < 22 ? -1*this.doubleReward : 1*this.doubleReward) : -1*this.doubleReward;
 			}
 			return 0;
 		}
 		
 		public int getValue(int card){
-			if(card >= 10 && card <=13){
-				return 10;
+			if (card==1){
+				return 11;
 			}
-			else{
-				return card;
-			}
+			return Math.min(card, 10);
 		}
 		
 		public int checkAce(int card){
@@ -203,67 +164,33 @@ package blackjack;
 
 		public List<Integer> makeMove(int action){
 			if(action == 0){
-				System.out.println("hitting");
 				this.Hit();
-				int reward=getReward();
-				ArrayList<Integer> output = new ArrayList<Integer>(Arrays.asList(playerSum, playerAce, dealerCard,pair,reward));
-				//System.out.println("you hit. Your card were "+ this.playerSum + "your reward were " + reward);
-				return output;
+				return this.getState();
 			}
 			if(action == 1){
-				System.out.println("standing");
+				//System.out.println("standing");
 				this.Stand();
 				while(this.dealerSum<17 && this.playerSum<=21){
 					this.DealerHit();
 				}
-				int reward=getReward();
-				ArrayList<Integer> output = new ArrayList<Integer>(Arrays.asList(playerSum, playerAce, dealerCard,pair,reward));
-				//System.out.println("you stand. Your card were "+ this.playerSum + "your reward were " + reward);
-				return output;
+				return this.getState();
 			}
 			if(action ==2){ //double. Have to figure out how to count in rewards here
-				System.out.println("doubling");
 				this.Double();
 				while(this.dealerSum<17 && this.playerSum<=21){
 					this.DealerHit();
 				}
-				int reward=getReward();
-				//System.out.println("reward by doubling" + reward);
-				ArrayList<Integer> output = new ArrayList<Integer>(Arrays.asList(playerSum, playerAce, dealerCard,pair,reward));
-				//System.out.println("you doubled. Your card were "+ this.playerSum + "your reward were " + reward);
-				return output;
+				return this.getState();
 			}
 			else{//if action = 3 aka SPLIT
-				System.out.println("splitting");
+				//System.out.println("splitting");
 				List<Integer> splitList = this.Split();
 				return splitList;
-				//if valid: get a list with two objects(split1 , split2)
-				//if not valid, returns the state you were in
-				//if(splitList.size()==2){ //if you didnt manageto split
-				//	return splitList;
-				//}
-				//Blackjack hand1 = splitList.get(0); //
-				//Blackjack hand2 = splitList.get(1); //
-				//List<Integer> state1 = hand1.getState();
-				//List<Integer> state2 = hand2.getState();
-				//int reward1= hand1.getReward();
-				//int reward2= hand2.getReward();
-				//state1.add(reward1);
-				//state1.addAll(state2);
-				//state1.add(reward2);
-				//return state1; //(playerSum,playerAce,dealerCard,pair,reward1,playerSum,playerAce,dealerCard,pair,reward2), size=10
 			
 			}
 		}
 		
 			
-			//else{
-			//	List<Blackjack> splitList = this.Split();
-			//	if(splitList.size()==1){
-			//		ArrayList<Integer> output = new ArrayList<Integer>(Arrays.asList(playerSum, playerAce, dealerCard,reward));
-			//		return output;
-			//	}
-			//}
 
 		public static void main(String[] args) {
 			Blackjack game = new Blackjack();
