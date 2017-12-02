@@ -13,9 +13,7 @@ import java.util.stream.Collectors;
 import javax.swing.text.html.HTMLDocument.Iterator;
 
 public class Qlearning {
-	
-	// NOTE TO PETTER! We now have the possbility to split if our sum is an even number... problem
-	
+
 	private HashMap<Qstate,Double> qstates;
 	private int states;
 	private int iterations = 10000;
@@ -27,7 +25,7 @@ public class Qlearning {
 	private int split = 0;
 	private int amountSplits = 0;
 	private HashMap<State,Integer> optimalPolicy;
-	
+
 	public Qlearning(){
 		this.qstates = new HashMap();
 		for (int k=1; k<14;k++){
@@ -51,22 +49,22 @@ public class Qlearning {
 			}
 		}
 		for (int k=1; k<14;k++){
-				for (int i=1; i<22;i++){
-					if (i%2==0 && i<21 && i>3){
-						this.states++;
-						
-					}
-					if (i>12 && i<22){
-						this.states++;
-					}
-					if (i>3 && i<22){
-						this.states++;
-					}
+			for (int i=1; i<22;i++){
+				if (i%2==0 && i<21 && i>3){
+					this.states++;
+
 				}
-				this.states++;
+				if (i>12 && i<22){
+					this.states++;
+				}
+				if (i>3 && i<22){
+					this.states++;
+				}
 			}
+			this.states++;
 		}
-	
+	}
+
 	public HashMap<State,Integer> getOptimalPolicy(){
 		this.optimalPolicy = new HashMap();
 		for (Qstate key : this.qstates.keySet()) {
@@ -77,33 +75,26 @@ public class Qlearning {
 
 		return this.optimalPolicy;
 	}
-	
-	//choose random action with probability epsilon, else argmax Q(s,a)
+
 	private int epsilonGreedy(State state){
 		if (new Random().nextDouble() <= this.epsilon){
 			double prob1 = new Random().nextDouble();
 			double prob2 = new Random().nextDouble();
 			if (state.isPair()==0){
 				if(state.getSum()<11){
-						return prob1 < 0.5 ? 0 : 1;
+					return prob1 < 0.5 ? 0 : 1;
 				}
 				return (int)(Math.random()*3);
 			}
 			if (state.getSum()<11 && state.isPair()==1){
 				return prob1 < 0.66? (prob2 < 0.5 ? 0 : 1) : 3;
-				
+
 			}
 			return prob1 < 0.5 ? (prob2 < 0.5 ? 0 : 1) : (prob2 < 0.5 ? 2 : 3);
 		}
 		return this.greedy(state);
 	}
-	
-	private int greedy2(State state){
-		return this.qstates.entrySet().stream().filter(map -> map.getKey().getState().equals(state)).
-				max((entry1, entry2) -> entry1.getValue() > entry2.getValue() ? 1 : -1).get().getKey().getAction();
 
-	}
-	
 	private int greedy(State state){
 		double value = -100; 
 		int action = 0;
@@ -115,25 +106,25 @@ public class Qlearning {
 				value = this.qstates.get(key);
 				action = key.getAction();
 			}
-				
+
 		}
-		
+
 		return action;
 	}
-	
+
 	private void playSplit(int action, Blackjack blackjack, Qstate real){
 		List<Integer> newList  = blackjack.makeMove(action); //can also get the blackjack objects here
 		Blackjack blackjack1 = new Blackjack(newList.get(0),newList.get(1));
 		Blackjack blackjack2 = new Blackjack(newList.get(0),newList.get(1));
 		this.play(blackjack2);
 		this.play(blackjack1);
-		
+
 	}
-	
+
 	private void play(){
 		play(null);
 	}
-	
+
 	private void play(Blackjack blackjack){
 		if (blackjack==null){
 			blackjack = new Blackjack();
@@ -157,12 +148,12 @@ public class Qlearning {
 					this.qstates.put(real, ((this.qstates.get(real) + alpha*(list.get(4)-this.qstates.get(real)))));	
 				} else{
 					this.qstates.put(real, (this.qstates.get(real) + alpha*(list.get(4) + gamma*this.qstates.get(this.findQstate( newstate, this.greedy(newstate)))))-this.qstates.get(real));
+				}
 			}
-		}
 		}	
-		}
+	}
 
-	
+
 	//Takes a state as input, returns corresponding qstate in our hashmap.
 	//if it doesnt exist, return null.
 	// Returns a Qstate-object
@@ -174,7 +165,7 @@ public class Qlearning {
 		}	
 		return null;
 	}
-	
+
 	public static void main(String[] args) {
 		Qlearning qlearning = new Qlearning();
 		double prob1 = 0.4;
@@ -182,12 +173,12 @@ public class Qlearning {
 		while (qlearning.iterations>0){
 			//System.out.println(qlearning.iterations);
 			qlearning.iterations--;
-//			if( qlearning.iterations==2000){
-//				qlearning.alpha=0.05;
-//				qlearning.epsilon=0.05;
-//			}
+			//			if( qlearning.iterations==2000){
+			//				qlearning.alpha=0.05;
+			//				qlearning.epsilon=0.05;
+			//			}
 			qlearning.play();
-		
+
 		}
 		qlearning.getOptimalPolicy();
 		//System.out.println(qlearning.qstates.size());
