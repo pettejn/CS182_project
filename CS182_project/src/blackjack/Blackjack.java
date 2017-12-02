@@ -17,18 +17,20 @@ package blackjack;
 		private int dealerSum = 0;
 		private int doubleReward = 1;
 		private int pair = 0; //value of card in pair.
+		private int playerCard;
+		private int split = 0;
 	
 
 		//normal constructor 
 		public Blackjack(){
-			int card1 = getCard();
+			this.playerCard = getCard();
 			int card2 = getCard();
-			this.pair = checkPair(card1,card2);
-			this.playerSum = getValue(card1) + getValue(card2);
+			this.pair = checkPair(this.playerCard,card2);
+			this.playerSum = getValue(this.playerCard) + getValue(card2);
 			if( this.playerSum==22){
 				this.playerSum = 12;
 			}
-			if(checkAce(card1)==1||checkAce(card2)==1){
+			if(checkAce(this.playerCard)==1||checkAce(card2)==1){
 				this.playerAce = 1;
 			}
 			this.dealerCard = getCard();
@@ -41,8 +43,12 @@ package blackjack;
 		//constructor 2 for splitting.
 		public Blackjack(int card, int dealerCard){
 			int card2 = getCard();
-			this.pair = checkPair(card,card2);
-			this.playerSum =getValue(card) + getValue(card2);
+			this.pair = 0;
+			this.split = 1;
+			this.playerSum = getValue(card) + getValue(card2);
+			if( this.playerSum==22){
+				this.playerSum = 12;
+			}
 			if(checkAce(card)==1||checkAce(card2)==1){
 				this.playerAce = 1;
 			}
@@ -79,12 +85,7 @@ package blackjack;
 		
 		
 		public List<Integer> Split(){
-			if(this.pair>0){
-				ArrayList<Integer> output = new ArrayList<Integer>(Arrays.asList(this.pair,this.dealerCard));
-				return output;
-			}
-			ArrayList<Integer> output = new ArrayList<Integer>(Arrays.asList(playerSum, playerAce, dealerCard,pair,this.getReward()));
-			return output;
+			return new ArrayList<Integer>(Arrays.asList(this.playerCard,this.dealerCard));
 		}
 		
 		public void Hit(){
@@ -175,7 +176,7 @@ package blackjack;
 				}
 				return this.getState();
 			}
-			if(action ==2){ //double. Have to figure out how to count in rewards here
+			if(action == 2){ //double. Have to figure out how to count in rewards here
 				this.Double();
 				while(this.dealerSum<17 && this.playerSum<=21){
 					this.DealerHit();
@@ -183,9 +184,7 @@ package blackjack;
 				return this.getState();
 			}
 			else{//if action = 3 aka SPLIT
-				//System.out.println("splitting");
-				List<Integer> splitList = this.Split();
-				return splitList;
+				return this.Split();
 			
 			}
 		}
