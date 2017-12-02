@@ -18,7 +18,7 @@ public class Qlearning {
 	
 	private HashMap<Qstate,Double> qstates;
 	private int states;
-	private int iterations = 10000;
+	private int iterations = 500;
 	private double epsilon = 0.8;
 	private double alpha = 0.8;
 	private double gamma =0.8;
@@ -50,29 +50,44 @@ public class Qlearning {
 				this.qstates.put(new Qstate(new State(12, 1, k, 0), action), (double) 0);
 			}
 		}
-		for (int k=1; k<14;k++){
-				for (int i=1; i<22;i++){
-					if (i%2==0 && i<21 && i>3){
-						this.states++;
-						
-					}
-					if (i>12 && i<22){
-						this.states++;
-					}
-					if (i>3 && i<22){
-						this.states++;
-					}
-				}
-				this.states++;
-			}
+//		for (int k=1; k<14;k++){
+//				for (int i=1; i<22;i++){
+//					if (i%2==0 && i<21 && i>3){
+//						this.states++;
+//						
+//					}
+//					if (i>12 && i<22){
+//						this.states++;
+//					}
+//					if (i>3 && i<22){
+//						this.states++;
+//					}
+//				}
+//				this.states++;
+//			}
 		}
 	
 	public HashMap<State,Integer> getOptimalPolicy(){
 		this.optimalPolicy = new HashMap();
-		for (Qstate key : this.qstates.keySet()) {
-			int action = greedy(key.getState());
-			this.optimalPolicy.put(key.getState(), action);
-			System.out.println(key +"  " + this.optimalPolicy.get(key.getState()));
+		for (int k=1; k<14;k++){
+			for (int i=1; i<22;i++){
+				if (i%2==0 && i<21 && i>3){
+					this.optimalPolicy.put(new State(i, 0, k, 1), 0);
+				}
+				if (i>12 && i<22){
+					this.optimalPolicy.put(new State(i, 1, k, 0), 0);
+				}
+				if (i>3 && i<22){
+				this.optimalPolicy.put(new State(i, 0, k, 0), 0);
+				}
+			}
+		this.optimalPolicy.put(new State(12, 1, k, 1), 0);
+		this.optimalPolicy.put(new State(12, 1, k, 0), 0);
+		}
+		for (State key : this.optimalPolicy.keySet()) {
+			int action = greedy(key);
+			this.optimalPolicy.put(key, action);
+			System.out.println(key +"  " + this.optimalPolicy.get(key));
 		}
 
 		return this.optimalPolicy;
@@ -143,9 +158,9 @@ public class Qlearning {
 			State state = new State(list.get(0),list.get(1),list.get(2),list.get(3));
 			int action = this.epsilonGreedy( state);
 			Qstate real = this.findQstate(state, action);
-			System.out.println(state);
-			System.out.println(action);
-			System.out.println(real);
+			//System.out.println(state);
+			//System.out.println(action);
+			//System.out.println(real);
 			if(action==3){
 				this.playSplit(action, blackjack, real);
 				break;
@@ -191,7 +206,7 @@ public class Qlearning {
 		}
 		qlearning.getOptimalPolicy();
 		//System.out.println(qlearning.qstates.size());
-		System.out.println(qlearning.states);
+		//System.out.println(qlearning.states);
 	}
 
 }
