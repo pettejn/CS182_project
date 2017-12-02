@@ -29,7 +29,7 @@ public class State {
 			return this.ace;
 		}
 		
-		public int getPair(){
+		public int isPair(){
 			return this.isPair;
 		}
 
