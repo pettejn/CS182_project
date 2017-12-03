@@ -25,8 +25,8 @@ package blackjack;
 		public Blackjack(){
 			this.playerCard = getCard();
 			int card2 = getCard();
-			System.out.println("card 1: " + this.playerCard);
-			System.out.println("card 2: " + card2);
+//			System.out.println("card 1: " + this.playerCard);
+//			System.out.println("card 2: " + card2);
 			this.pair = checkPair(this.playerCard,card2);
 			this.playerSum = getValue(this.playerCard) + getValue(card2);
 			if( this.playerSum==22){
@@ -45,8 +45,8 @@ package blackjack;
 		//constructor 2 for splitting.
 		public Blackjack(int card, int dealerCard){
 			int card2 = getCard();
-			System.out.println("card 1: " + card);
-			System.out.println("card 2: " + card2);
+//			System.out.println("card 1: " + card);
+//			System.out.println("card 2: " + card2);
 			this.pair = 0;
 			this.split = 1;
 			this.playerSum = getValue(card) + getValue(card2);
@@ -65,6 +65,10 @@ package blackjack;
 		
 		public int getDealerSum(){
 			return this.dealerSum;
+		}
+		
+		public int getPlayerSum(){
+			return this.playerSum;
 		}
 		
 		
@@ -167,30 +171,30 @@ package blackjack;
 
 		public List<Integer> makeMove(int action){
 			if(action == 0){
-				System.out.println("hitting");
+				//System.out.println("hitting");
 				this.Hit();
 				return this.getState();
 			}
 			if(action == 1){
-				System.out.println("Standing");
+				//System.out.println("Standing");
 				this.Stand();
 				while(this.dealerSum<17 && this.playerSum<=21){
 					this.DealerHit();
 				}
-				System.out.println("Dealersum is now" + this.dealerSum);
+				//System.out.println("Dealersum is now" + this.dealerSum);
 				return this.getState();
 			}
 			if(action == 2){ //double. Have to figure out how to count in rewards here
-				System.out.println("Doubling");
+				//System.out.println("Doubling");
 				this.Double();
 				while(this.dealerSum<17 && this.playerSum<=21){
 					this.DealerHit();
 				}
-				System.out.println("Dealersum is now" + this.dealerSum);
+				//System.out.println("Dealersum is now" + this.dealerSum);
 				return this.getState();
 			}
 			else{//if action = 3 aka SPLIT
-				System.out.println("Splitting");
+				//System.out.println("Splitting");
 				return this.Split();
 			
 			}

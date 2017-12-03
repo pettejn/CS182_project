@@ -11,10 +11,8 @@ public class State {
 			this.sum = sum;
 			this.ace = ace;
 			this.dealerCard = dealerCard;
-			this.isPair = isPair;
-			
+			this.isPair = isPair;	
 		}
-		
 		
 		public int getSum(){
 			return this.sum;

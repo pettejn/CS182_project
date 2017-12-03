@@ -18,7 +18,8 @@ public class Qlearning {
 	
 	private HashMap<Qstate,Double> qstates;
 	private int states;
-	private int iterations = 10000;
+	private int iterations = 1000000;
+	private int countIt = iterations;
 	private double epsilon = 0.9;
 	private double alpha = 0.8;
 	private double gamma =1;
@@ -37,15 +38,17 @@ public class Qlearning {
 					if (i%2==0 && i<21 && i>3){
 						this.qstates.put(new Qstate(new State(i, 0, k, 1), action), (double) 0);
 					}
-					if (i>12 && i<22){
+					if (i>12 && i<22 && action!=3){
 						this.qstates.put(new Qstate(new State(i, 1, k, 0), action), (double) 0);
 					}
-					if (i>3 && i<22){
+					if (i>3 && i<22 && action!=3){
 						this.qstates.put(new Qstate(new State(i, 0, k, 0), action), (double) 0);
 					}
 				}
 				this.qstates.put(new Qstate(new State(12, 1, k, 1), action), (double) 0);
-				this.qstates.put(new Qstate(new State(12, 1, k, 0), action), (double) 0);
+				if (action!=3){
+					this.qstates.put(new Qstate(new State(12, 1, k, 0), action), (double) 0);
+				}
 			}
 		}
 //		for (int k=1; k<14;k++){
@@ -105,12 +108,8 @@ public class Qlearning {
 	private int greedy(State state){
 		double value = -100; 
 		int tempAction =0;
-		System.out.println("State greedy" + state);
 		for (int action=0; action<4;action++){
-			Qstate key = new Qstate(state,action);
-			System.out.println("KEY IS: " + key);
-			System.out.println("GETTING: " + this.qstates.get(key));
-			System.out.println("Value: "+ value);
+			Qstate key = new Qstate(state,action);//here we simply make the action and say its ok
 			if (this.qstates.get(key)!=null){
 				if (this.qstates.get(key)>value) {
 					value = this.qstates.get(key);
@@ -152,17 +151,8 @@ public class Qlearning {
 		while (list.get(4)==(double)0){	
 			//System.out.println("Current reward is: " + list.get(4));
 			State state = new State(list.get(0),list.get(1),list.get(2),list.get(3));
-			System.out.println("State is: "+ state);
 			int action = this.epsilonGreedy( state);
 			Qstate real = new Qstate(state,action);
-			System.out.println("Hascode is:" + real.hashCode());
-//			System.out.println("ingrid try?: "+ this.qstates.get(ingrid));
-//			System.out.println("uten lookup:" + ingrid.hashCode());
-//			Qstate real = this.findQstate(state, action);
-//			System.out.println("Qstate: " + real);
-//			System.out.println("real try?: "+ this.qstates.get(real));
-//			System.out.println("real hashcode:" +real.hashCode());
-//			System.out.println("try again: "+ this.qstates.get(1701002));
 			if(action==3){
 				this.playSplit(action, blackjack, real);
 				break;
@@ -188,19 +178,6 @@ public class Qlearning {
 		}
 		}	
 		}
-
-	
-	//Takes a state as input, returns corresponding qstate in our hashmap.
-	//if it doesnt exist, return null.
-	// Returns a Qstate-object
-	private Qstate findQstate(State state, int action){
-		for (Qstate name: this.qstates.keySet()){
-			if (name.getState().isPair()==state.isPair() && name.getState().getSum()==state.getSum() && name.getAction()==action && name.getState().getAce()==state.getAce() && name.getState().getDealer()==state.getDealer()){
-				return name;
-			}
-		}	
-		return null;
-	}
 	
 	public static void main(String[] args) {
 		Qlearning qlearning = new Qlearning();
@@ -209,19 +186,19 @@ public class Qlearning {
 		while (qlearning.iterations>0){
 			System.out.println(qlearning.iterations);
 			qlearning.iterations--;
-			if(qlearning.iterations==0.9*25000){
+			if(qlearning.iterations==0.9*(qlearning.countIt)){
 				System.out.println("Chagned alpha&epsilon");
 				qlearning.alpha=qlearning.alpha*0.90;
 				qlearning.epsilon=qlearning.epsilon*0.90;
 				//qlearning.lVictory=qlearning.victory;
 			}
-			if(qlearning.iterations==0.7*25000){
+			if(qlearning.iterations==0.7*(qlearning.countIt)){
 				System.out.println("Chagned alpha&epsilon");
 				qlearning.alpha=qlearning.alpha*0.10;
 				qlearning.epsilon=qlearning.epsilon*0.10;
 				//qlearning.lVictory=qlearning.victory;
 			}
-			if(qlearning.iterations==0.3*25000){
+			if(qlearning.iterations==0.3*(qlearning.countIt)){
 				System.out.println("Chagned alpha&epsilon");
 				qlearning.alpha=0.05;
 				qlearning.epsilon=0;
@@ -234,10 +211,10 @@ public class Qlearning {
 		//qlearning.getOptimalPolicy();
 		//System.out.println(qlearning.qstates.size());
 		//System.out.println(qlearning.states);
-		System.out.println(qlearning.victory);
-		System.out.println(qlearning.lVictory);
-		System.out.println(qlearning.victory-qlearning.lVictory);
-		//qlearning.getOptimalPolicy();
+//		System.out.println(qlearning.victory);
+//		System.out.println(qlearning.lVictory);
+//		System.out.println(qlearning.victory-qlearning.lVictory);
+		qlearning.getOptimalPolicy();
 	}
 
 }
