@@ -13,8 +13,9 @@ import javax.swing.text.html.HTMLDocument.Iterator;
 public class ListLearning {
 	
 	private HashMap<Qstate,Double> states;
+	private HashMap<Integer,Qstate> qstates;
 	private List<Double> rewards;
-	private List<Qstate> qstates;
+	//private List<Qstate> qstates;
 	private int iterations = 10000;
 	private double epsilon = 0.1;
 	private double alpha = 0.1;
@@ -46,11 +47,6 @@ public class ListLearning {
 		
 	}
 	
-	private int greedy2(State state){
-		return this.states.entrySet().stream().filter(map -> map.getKey().getState().equals(state)).
-				max((entry1, entry2) -> entry1.getValue() > entry2.getValue() ? 1 : -1).get().getKey().getAction();
-
-	}
 	
 	private int greedy(State state){
 		double value = -100; 
@@ -85,15 +81,8 @@ public class ListLearning {
 	public static void main(String[] args) {
 		ListLearning qlearning = new ListLearning();
 		System.out.println(qlearning.states.size());
-		qlearning.play();
-		for (Qstate name: qlearning.states.keySet()){
-
-            String key =name.toString();
-            String value = qlearning.states.get(name).toString();  
-            System.out.println(key + " " + value);  
-
-
-} 
+		 qlearning.qstates.put(1, new Qstate(new State(12,0,1,1),1));
+		 qlearning.qstates.get(1);
 	}
 }
 
