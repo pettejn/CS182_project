@@ -1,6 +1,10 @@
 package blackjack;
 
 import java.util.ArrayList;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Random;
 import java.util.Arrays;
 import java.util.Collections;
@@ -18,12 +22,14 @@ public class Qlearning {
 	
 	private HashMap<Qstate,Double> qstates;
 	private int states;
-	private int iterations = 1000000;
-	private int countIt = iterations;
+	private int iterations = 200;
+	private int i = 10000;
 	private double epsilon = 0.9;
 	private double alpha = 0.8;
 	private double gamma =1;
 	private int rewards=0;
+	private int totalRewards=0;
+	private int amountRewards=0;
 	private int victory=0;
 	private int lVictory = 0;
 	private int split = 0;
@@ -68,6 +74,25 @@ public class Qlearning {
 //			}
 		}
 	
+	private void setOptimalPolicy() throws IOException{
+		this.optimalPolicy = new HashMap<>();
+		final String dir = System.getProperty("user.dir");
+	BufferedReader br = new BufferedReader(new FileReader(dir + "/src/blackjack/OptimalPolicyCorrect.txt"));
+	try {
+	    StringBuilder sb = new StringBuilder();
+	    String line = br.readLine();
+
+	    while (line != null) {
+	    	String[] tokens = line.split("-");
+	    	//System.out.println(tokens[0]);
+	    		this.optimalPolicy.put(new State( Integer.parseInt(tokens[0]),Integer.parseInt(tokens[1]),Integer.parseInt(tokens[2]),Integer.parseInt(tokens[3])), Integer.parseInt(tokens[4]));
+	    		line = br.readLine();
+	    }
+	} finally {
+	    br.close();
+	}
+	}
+	
 	public HashMap<State,Integer> getOptimalPolicy(){
 		this.optimalPolicy = new HashMap();
 		for (int k=1; k<11;k++){
@@ -88,7 +113,7 @@ public class Qlearning {
 		for (State key : this.optimalPolicy.keySet()) {
 			int action = greedy(key);
 			this.optimalPolicy.put(key, action);
-			System.out.println(key +"  " + this.optimalPolicy.get(key));
+			//System.out.println(key +"  " + this.optimalPolicy.get(key));
 		}
 
 		return this.optimalPolicy;
@@ -104,12 +129,22 @@ public class Qlearning {
 		}
 		return this.greedy(state);
 	}
+   
+   private int optimalGreedy(State state){
+		//System.out.println(state);
+		//System.out.println(this.findState(state));
+		return this.optimalPolicy.get(state);
+	}
 	   
 	private int greedy(State state){
 		double value = -100; 
 		int tempAction =0;
+		//System.out.println("State greedy" + state);
 		for (int action=0; action<4;action++){
-			Qstate key = new Qstate(state,action);//here we simply make the action and say its ok
+			Qstate key = new Qstate(state,action);
+			//System.out.println("KEY IS: " + key);
+			//System.out.println("GETTING: " + this.qstates.get(key));
+			//System.out.println("Value: "+ value);
 			if (this.qstates.get(key)!=null){
 				if (this.qstates.get(key)>value) {
 					value = this.qstates.get(key);
@@ -151,7 +186,7 @@ public class Qlearning {
 		while (list.get(4)==(double)0){	
 			//System.out.println("Current reward is: " + list.get(4));
 			State state = new State(list.get(0),list.get(1),list.get(2),list.get(3));
-			int action = this.epsilonGreedy( state);
+			int action = this.epsilonGreedy(state); //for optimal: optimalgreedy(state)
 			Qstate real = new Qstate(state,action);
 			if(action==3){
 				this.playSplit(action, blackjack, real);
@@ -159,7 +194,10 @@ public class Qlearning {
 			}
 			else{
 				list = blackjack.makeMove(action);
+				this.totalRewards+=list.get(4);
+				this.amountRewards+=Math.abs(list.get(4));
 				if(list.get(4)>0){
+					this.rewards+=list.get(4);
 					this.victory++;
 				}
 				State newstate = new State(list.get(0),list.get(1),list.get(2),list.get(3)); 
@@ -177,32 +215,39 @@ public class Qlearning {
 			}
 		}
 		}	
-		}
+	}
 	
-	public static void main(String[] args) {
+	
+	public static void main(String[] args) throws IOException {
 		Qlearning qlearning = new Qlearning();
+		qlearning.setOptimalPolicy();
 		double prob1 = 0.4;
 		double prob2 = 0.4;
+		double learningReward = 0;
 		while (qlearning.iterations>0){
 			System.out.println(qlearning.iterations);
 			qlearning.iterations--;
-			if(qlearning.iterations==0.9*(qlearning.countIt)){
+			if(qlearning.iterations==0.1*qlearning.i){
 				System.out.println("Chagned alpha&epsilon");
 				qlearning.alpha=qlearning.alpha*0.90;
 				qlearning.epsilon=qlearning.epsilon*0.90;
 				//qlearning.lVictory=qlearning.victory;
 			}
-			if(qlearning.iterations==0.7*(qlearning.countIt)){
+			if(qlearning.iterations==0.3*qlearning.i){
 				System.out.println("Chagned alpha&epsilon");
 				qlearning.alpha=qlearning.alpha*0.10;
 				qlearning.epsilon=qlearning.epsilon*0.10;
 				//qlearning.lVictory=qlearning.victory;
 			}
-			if(qlearning.iterations==0.3*(qlearning.countIt)){
+			if(qlearning.iterations==0.7*qlearning.i){
 				System.out.println("Chagned alpha&epsilon");
 				qlearning.alpha=0.05;
 				qlearning.epsilon=0;
 				//qlearning.lVictory=qlearning.victory;
+			}
+			
+			if(qlearning.iterations==qlearning.i){
+				learningReward = qlearning.rewards;
 			}
 			
 			qlearning.play();
@@ -211,11 +256,12 @@ public class Qlearning {
 		//qlearning.getOptimalPolicy();
 		//System.out.println(qlearning.qstates.size());
 		//System.out.println(qlearning.states);
-//		System.out.println(qlearning.victory);
-//		System.out.println(qlearning.lVictory);
-//		System.out.println(qlearning.victory-qlearning.lVictory);
-		qlearning.getOptimalPolicy();
+		System.out.println("Victories: " + qlearning.victory);
+		System.out.println("Total reward: " + qlearning.totalRewards);
+		System.out.println("amount reward: " + qlearning.amountRewards);
+		System.out.println("won: " + qlearning.rewards);
+		System.out.println("Learning won: " + learningReward);
+		//qlearning.getOptimalPolicy();
 	}
 
 }
-
