@@ -1,5 +1,11 @@
 package blackjack;
 
+
+/**
+ * @author Ingrid E. Hermanrud, Petter J. Narvhus
+ *
+ */
+
 public class State {
 	
 		private int sum;

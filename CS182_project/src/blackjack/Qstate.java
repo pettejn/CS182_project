@@ -1,5 +1,10 @@
 package blackjack;
 
+
+/**
+ * @author Ingrid E. Hermanrud, Petter J. Narvhus
+ *
+ */
 public class Qstate {
 	
 	private State state;

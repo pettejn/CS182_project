@@ -2,42 +2,42 @@ package blackjack;
 
 import java.util.ArrayList;
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Random;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.stream.Collectors;
 
-import javax.swing.text.html.HTMLDocument.Iterator;
 
+/**
+ * @author Ingrid E. Hermanrud, Petter J. Narvhus
+ *
+ */
 public class Qlearning {
 	
-	// NOTE TO PETTER! We now have the possbility to split if our sum is an even number... problem
-	
 	private HashMap<Qstate,Double> qstates;
-	private int states;
-	private int iterations = 200;
-	private int i = 10000;
-	private double epsilon = 0.9;
-	private double alpha = 0.8;
-	private double gamma =1;
-	private int rewards=0;
-	private int totalRewards=0;
-	private int amountRewards=0;
-	private int victory=0;
-	private int lVictory = 0;
-	private int split = 0;
-	private int amountSplits = 0;
+	private int trainingIterations = 100000;
+	private int testIterations = 500000;
+	private int i = 100000;
+	private double epsilon = 1;
+	private double alpha = 0.01;
+	private double gamma = 0.05;
+	private int rewards;
+	private int totalRewards;
+	private int amountRewards;
+	private int victory;
+	private int splits;
+	private int lost;
 	private HashMap<State,Integer> optimalPolicy;
+	private int doubleReward;
+	private int doubles;
 	
+	/**
+	 * Constructor to initialize learning.
+	 * Makes a hash-map with all the Q-states and their possible associated actions
+	 */ 
 	public Qlearning(){
-		this.qstates = new HashMap();
+		this.qstates = new HashMap<Qstate,Double>();
 		for (int k=1; k<11;k++){
 			for (int action=0; action<4;action++ ){
 				for (int i=1; i<22;i++){
@@ -57,44 +57,65 @@ public class Qlearning {
 				}
 			}
 		}
-//		for (int k=1; k<14;k++){
-//				for (int i=1; i<22;i++){
-//					if (i%2==0 && i<21 && i>3){
-//						this.states++;
-//						
-//					}
-//					if (i>12 && i<22){
-//						this.states++;
-//					}
-//					if (i>3 && i<22){
-//						this.states++;
-//					}
-//				}
-//				this.states++;
-//			}
-		}
+	}
 	
+	/**
+	 * Constructs the hash-map for the optimal policy as in the figure provided in our report.
+	 * Reads from file OptimalPolicyCorrect.txt
+	 * Make sure to have this text file in this folder!
+	 */ 
 	private void setOptimalPolicy() throws IOException{
 		this.optimalPolicy = new HashMap<>();
 		final String dir = System.getProperty("user.dir");
-	BufferedReader br = new BufferedReader(new FileReader(dir + "/src/blackjack/OptimalPolicyCorrect.txt"));
-	try {
-	    StringBuilder sb = new StringBuilder();
-	    String line = br.readLine();
-
-	    while (line != null) {
-	    	String[] tokens = line.split("-");
-	    	//System.out.println(tokens[0]);
-	    		this.optimalPolicy.put(new State( Integer.parseInt(tokens[0]),Integer.parseInt(tokens[1]),Integer.parseInt(tokens[2]),Integer.parseInt(tokens[3])), Integer.parseInt(tokens[4]));
-	    		line = br.readLine();
-	    }
-	} finally {
-	    br.close();
-	}
+		BufferedReader br = new BufferedReader(new FileReader(dir + "/src/blackjack/OptimalPolicyCorrect.txt"));
+		try {
+		    StringBuilder sb = new StringBuilder();
+		    String line = br.readLine();
+		    while (line != null) {
+		    	String[] tokens = line.split("-");
+		    		this.optimalPolicy.put(new State( Integer.parseInt(tokens[0]),Integer.parseInt(tokens[1]),Integer.parseInt(tokens[2]),Integer.parseInt(tokens[3])), Integer.parseInt(tokens[4]));
+		    		line = br.readLine();
+		    }
+		} 
+		finally {
+			br.close();
+		}
 	}
 	
-	public HashMap<State,Integer> getOptimalPolicy(){
-		this.optimalPolicy = new HashMap();
+	/**
+	 * Prints out all the different Q-values for each possible action at each state.
+	 * Printed in an excel-friendy format
+	 * Used to check how close our policy is to the optimal policy. 
+	 * Also used to check the "5% slack" we're mentioning in our report
+	 * @return the hash-map of the Q-states
+	 */ 
+	public HashMap<Qstate,Double> finalQstate(){
+		this.getOptimalPolicy();
+		for(State state: this.optimalPolicy.keySet()){
+			List<Double> out = new ArrayList<Double>();
+			for(int action=0;action<4;action++){
+				Qstate key = new Qstate(state,action);
+				if (this.qstates.get(key)!=null){
+					out.add(this.qstates.get(key));
+				}
+			}
+			if(out.size()==3){
+				out.add(null);
+			}
+			System.out.println(state + "-" + out);
+		}
+		return this.qstates;
+	}
+	
+	/**
+	 * Makes and returns the final policy of all states.
+	 * Printed in an excel-friendy format
+	 * Used to check how close our policy is to the optimal policy. 
+	 * Also used to check the "5% slack" we're mentioning in our report
+	 * @return hash-map of policy at each state
+	 */ 
+	public HashMap<State,Integer> getOptimalPolicy(){ //NB CHANGE NAME!!!!!!!!
+		this.optimalPolicy = new HashMap<State,Integer>();
 		for (int k=1; k<11;k++){
 			for (int i=1; i<22;i++){
 				if (i%2==0 && i<21 && i>3){
@@ -113,9 +134,7 @@ public class Qlearning {
 		for (State key : this.optimalPolicy.keySet()) {
 			int action = greedy(key);
 			this.optimalPolicy.put(key, action);
-			//System.out.println(key +"  " + this.optimalPolicy.get(key));
 		}
-
 		return this.optimalPolicy;
 	}
 	
@@ -164,9 +183,9 @@ public class Qlearning {
 		List<Integer> hand2 = blackjack2.getState();
 		State state1 = new State(hand1.get(0),hand1.get(1),hand1.get(2),hand1.get(3));
 		State state2 = new State(hand2.get(0),hand2.get(1),hand2.get(2),hand2.get(3));
-		//System.out.println("old value for: " + real + "is:"+ this.qstates.get(real)); 
-		//double y = (this.qstates.get(real) + alpha*(gamma*(this.qstates.get(this.findQstate(state1,this.greedy(state1)))+this.qstates.get(this.findQstate(state2,this.greedy(state2))))-this.qstates.get(real)));
-	    //System.out.println("updated value: " + real + "is:"+ y); 
+//		System.out.println("old value for: " + real + "is:"+ this.qstates.get(real)); 
+//		double y = (this.qstates.get(real) + alpha*(gamma*(this.qstates.get(new Qstate(state1,this.greedy(state1)))+this.qstates.get(new Qstate(state2,this.greedy(state2))))-this.qstates.get(real)));
+//	    System.out.println("updated value: " + real + "is:"+ y); 
 		this.qstates.put(real, (this.qstates.get(real) + alpha*(gamma*(this.qstates.get(new Qstate(state1,this.greedy(state1)))+this.qstates.get(new Qstate(state2,this.greedy(state2))))-this.qstates.get(real))));
 		//System.out.println("playing first splitted hand");
 		this.play(blackjack1);
@@ -188,6 +207,7 @@ public class Qlearning {
 			State state = new State(list.get(0),list.get(1),list.get(2),list.get(3));
 			int action = this.epsilonGreedy(state); //for optimal: optimalgreedy(state)
 			Qstate real = new Qstate(state,action);
+			//System.out.println("Qstate: " + real);
 			if(action==3){
 				this.playSplit(action, blackjack, real);
 				break;
@@ -203,14 +223,14 @@ public class Qlearning {
 				State newstate = new State(list.get(0),list.get(1),list.get(2),list.get(3)); 
 				//System.out.println("New state after move: " + newstate + ", reward is: " + list.get(4));
 				if( newstate.getSum()>21){ 
-					//System.out.println("old value for: " + real + "is:"+ this.qstates.get(real)); 
-			        //double y = (this.qstates.get(real) + alpha*(list.get(4)-this.qstates.get(real))); 
-			        //System.out.println("updated value: " + real + "is:"+ y); 
+//					System.out.println("old value for: " + real + "is:"+ this.qstates.get(real)); 
+//			        double y = (this.qstates.get(real) + alpha*(list.get(4)-this.qstates.get(real))); 
+//			        System.out.println("updated value: " + real + "is:"+ y); 
 					this.qstates.put(real, (this.qstates.get(real) + alpha*(list.get(4)-this.qstates.get(real))));	
 				} else{
-					//System.out.println("old value for: "  + real + "is:"+ this.qstates.get(real)); 
-			        //double y = (this.qstates.get(real) + alpha*(list.get(4)+gamma* this.qstates.get(this.findQstate(newstate,this.greedy(newstate)))-this.qstates.get(real)));
-			        //System.out.println("updated value: " + real + "is:"+ y); 
+//					System.out.println("old value for: "  + real + "is:"+ this.qstates.get(real)); 
+//			        double y = (this.qstates.get(real) + alpha*(list.get(4)+gamma* this.qstates.get(new Qstate(newstate,this.greedy(newstate)))-this.qstates.get(real)));
+//			        System.out.println("updated value: " + real + "is:"+ y); 
 					this.qstates.put(real, (this.qstates.get(real) + alpha*(list.get(4)+gamma* this.qstates.get(new Qstate(newstate,this.greedy(newstate)))-this.qstates.get(real))));
 			}
 		}
@@ -224,44 +244,83 @@ public class Qlearning {
 		double prob1 = 0.4;
 		double prob2 = 0.4;
 		double learningReward = 0;
-		while (qlearning.iterations>0){
-			System.out.println(qlearning.iterations);
-			qlearning.iterations--;
-			if(qlearning.iterations==0.1*qlearning.i){
-				System.out.println("Chagned alpha&epsilon");
-				qlearning.alpha=qlearning.alpha*0.90;
-				qlearning.epsilon=qlearning.epsilon*0.90;
-				//qlearning.lVictory=qlearning.victory;
-			}
-			if(qlearning.iterations==0.3*qlearning.i){
-				System.out.println("Chagned alpha&epsilon");
-				qlearning.alpha=qlearning.alpha*0.10;
-				qlearning.epsilon=qlearning.epsilon*0.10;
-				//qlearning.lVictory=qlearning.victory;
-			}
-			if(qlearning.iterations==0.7*qlearning.i){
-				System.out.println("Chagned alpha&epsilon");
-				qlearning.alpha=0.05;
-				qlearning.epsilon=0;
-				//qlearning.lVictory=qlearning.victory;
-			}
+		System.out.println("TrainingIterations: " + qlearning.trainingIterations);
+		while (qlearning.trainingIterations>0){
+			System.out.println(qlearning.trainingIterations);
+			qlearning.trainingIterations--;
+			//qlearning.alpha = (double) qlearning.trainingIterations/(double) qlearning.i*2;
+			//qlearning.epsilon = qlearning.trainingIterations/qlearning.i;
 			
-			if(qlearning.iterations==qlearning.i){
+//			if(qlearning.trainingIterations==0.7*qlearning.i){
+//				qlearning.alpha=qlearning.alpha*0.90;
+//				qlearning.epsilon=qlearning.epsilon*0.90;
+//				//qlearning.lVictory=qlearning.victory;
+//			}
+//			if(qlearning.trainingIterations==0.3*qlearning.i){
+//				qlearning.alpha=qlearning.alpha*0.10;
+//				qlearning.epsilon=qlearning.epsilon*0.10;
+//				//qlearning.lVictory=qlearning.victory;
+//			}
+//			if(qlearning.trainingIterations==0.1*qlearning.i){
+//				qlearning.alpha=0.05;
+//				qlearning.epsilon=0;
+//				//qlearning.lVictory=qlearning.victory;
+//			}
+			
+			if(qlearning.trainingIterations==qlearning.i){
 				learningReward = qlearning.rewards;
 			}
 			
 			qlearning.play();
 		
 		}
-		//qlearning.getOptimalPolicy();
-		//System.out.println(qlearning.qstates.size());
-		//System.out.println(qlearning.states);
-		System.out.println("Victories: " + qlearning.victory);
-		System.out.println("Total reward: " + qlearning.totalRewards);
-		System.out.println("amount reward: " + qlearning.amountRewards);
-		System.out.println("won: " + qlearning.rewards);
-		System.out.println("Learning won: " + learningReward);
-		//qlearning.getOptimalPolicy();
+		int handsPlayed = qlearning.lost + qlearning.victory;
+		System.out.println("Hands played: " + handsPlayed);
+		System.out.println("Hands won: " + qlearning.victory);
+		System.out.println("Hands lost: " + qlearning.lost);
+		System.out.println("Accumulated payoff: " + qlearning.totalRewards);
+		System.out.println("total reward given: " + qlearning.amountRewards);
+		System.out.println("Sum of positive rewards: " + qlearning.rewards);
+		System.out.println("splits: " + qlearning.splits);
+		System.out.println("Sum of rewards when played double: " + qlearning.doubleReward);
+		System.out.println("Times doubled down: " + qlearning.doubles);
+		
+		qlearning.lost = 0;
+		qlearning.victory = 0;
+		qlearning.totalRewards = 0;
+		qlearning.amountRewards = 0;
+		qlearning.rewards = 0;
+		qlearning.splits = 0;
+		qlearning.doubleReward = 0;
+		qlearning.doubles = 0;
+		System.out.println();
+		System.out.println("q-values:");
+		qlearning.finalQstate();
+		qlearning.epsilon = 0;
+		qlearning.alpha=0;
+		
+		System.out.println();
+		System.out.println("Test data:");
+		System.out.println("TestIterations: " + qlearning.testIterations);
+		while (qlearning.testIterations>0){
+			//System.out.println(qlearning.testIterations);
+			qlearning.testIterations--;
+			qlearning.play();
+		
+		}
+		
+		handsPlayed = qlearning.lost + qlearning.victory;
+		System.out.println("Hands played: " + handsPlayed);
+		System.out.println("Hands won: " + qlearning.victory);
+		System.out.println("Hands lost: " + qlearning.lost);
+		System.out.println("Accumulated payoff: " + qlearning.totalRewards);
+		System.out.println("total reward given: " + qlearning.amountRewards);
+		System.out.println("Sum of positive rewards: " + qlearning.rewards);
+		System.out.println("splits: " + qlearning.splits);
+		System.out.println("Sum of rewards when played double: " + qlearning.doubleReward);
+		System.out.println("Times doubled down: " + qlearning.doubles);
+		
 	}
+
 
 }

@@ -7,26 +7,28 @@ package blackjack;
 	import java.util.Random;
 	
 
+	/**
+	 * @author Ingrid E. Hermanrud, Petter J. Narvhus
+	 *
+	 */
 	public class Blackjack {
 		
-		private int playerSum = 0; //nb, player sum never bigger than 18
-		private int dealerCard = 0;
-		private int playerAce = 0;
-		private int dealerAce = 0;
+		private int playerSum;
+		private int dealerCard;
+		private int playerAce;
+		private int dealerAce;
 		private boolean PlayersTurn = true;
-		private int dealerSum = 0;
+		private int dealerSum;
 		private int doubleReward = 1;
-		private int pair = 0; //value of card in pair.
+		private int pair;
 		private int playerCard;
-		private int split = 0;
-	
 
-		//normal constructor 
+		/**
+		 * Constructor to initialize a blackjack-hand.
+		 */ 
 		public Blackjack(){
 			this.playerCard = getCard();
 			int card2 = getCard();
-//			System.out.println("card 1: " + this.playerCard);
-//			System.out.println("card 2: " + card2);
 			this.pair = checkPair(this.playerCard,card2);
 			this.playerSum = getValue(this.playerCard) + getValue(card2);
 			if( this.playerSum==22){
@@ -42,13 +44,14 @@ package blackjack;
 			}
 		}
 		
-		//constructor 2 for splitting.
+		/**
+		 * Constructor to initialize a blackjack-hand after splitting
+		 * @param card
+		 * @param dealerCard
+		 */ 
 		public Blackjack(int card, int dealerCard){
 			int card2 = getCard();
-//			System.out.println("card 1: " + card);
-//			System.out.println("card 2: " + card2);
 			this.pair = 0;
-			this.split = 1;
 			this.playerSum = getValue(card) + getValue(card2);
 			if( this.playerSum==22){
 				this.playerSum = 12;
@@ -71,31 +74,53 @@ package blackjack;
 			return this.playerSum;
 		}
 		
-		
+		/**
+		 * Returns a list of the parameters of the current state
+		 * @return the current state
+		 */ 
 		public List<Integer> getState(){
 			int reward=getReward();
 			ArrayList<Integer> output = new ArrayList<Integer>(Arrays.asList(this.playerSum, this.playerAce, Math.min(10, this.dealerCard),this.pair,reward));
 			return output;
 		}
 		
+		/**
+		 * Checks whether the two cards are a pair or not.
+		 * @param card1
+		 * @param card2
+		 * @return whether the cards are a pair or not
+		 */ 
 		public int checkPair(int card1, int card2){
 			if (card1 == card2){
 				return 1;
 			}
 			return 0;
 		}
-		
+		 
+		/**
+		 * Gets a random card with values 1-13
+		 * @return card
+		 */ 
 		public int getCard() {
 			Random rand = new Random(); 
-			int cardValue = rand.nextInt(13) + 1;
-			return cardValue;
+			int card = rand.nextInt(13) + 1;
+			return card;
 		}
 		
-		
+		/**
+		 * Method for splitting, such that you play two new hands with the given card and dealercard
+		 * @return list of card your splitting and the dealer card
+		 */ 
 		public List<Integer> Split(){
 			return new ArrayList<Integer>(Arrays.asList(this.playerCard,Math.min(10, this.dealerCard)));
 		}
 		
+		/**
+		 * Method for hitting for the player, such that the player get's an additional card
+		 * Check if you it's still your turn(not chosen Stand/Double yet) or if the game is over
+		 * If game's not over and your allowed to hit, the players gets an additional card
+		 * If you bust and have an ace, the players sum decreases
+		 */ 
 		public void Hit(){
 			this.pair = 0;
 			if(!gameOver() && this.PlayersTurn==true){
@@ -114,12 +139,11 @@ package blackjack;
 			}
 		}
 		
-		public void Stand(){
-			this.PlayersTurn = false;
-		}
-		
+		/**
+		 * Method for hitting for the dealer
+		 */ 
 		public void DealerHit(){
-			this.PlayersTurn=false; //if petter choose to hit on dealer, means player are done.
+			this.PlayersTurn=false; 
 			int card = getCard();
 			this.dealerSum += getValue(card);
 			if(this.dealerSum > 21 && this.dealerAce == 1){
@@ -128,12 +152,29 @@ package blackjack;
 			}
 		}
 		
+		/**
+		 * Method for standing
+		 * Makes sure it's the dealers turn to play
+		 */ 
+		public void Stand(){
+			this.PlayersTurn = false;
+		}
+		
+		/**
+		 * Method for doubling down
+		 * A double is always followed up by a hit and a stand, and doubles the reward
+		 */ 
 		public void Double(){
 			this.Hit();
 			this.Stand();
 			this.doubleReward = 2;
 		}
 		
+		/**
+		 * Method for checking if the game is over
+		 * Game is over if the player has busted or the dealer have a sum equal or greater than 17
+		 * @return true if the game is over
+		 */ 
 		public boolean gameOver(){
 			if((this.PlayersTurn == false && this.dealerSum >= 17)||this.playerSum > 21){
 				return true;
@@ -141,13 +182,25 @@ package blackjack;
 			return false;
 		}
 		
+		/**
+		 * Getting the reward of the game
+		 * If the game is not over, the reward is 0.
+		 * If the player won, the reward is 1 or 2 depending on if you doubled or not
+		 * If the dealer won, the reward if -1 or -2 depending on if you doubled or not
+		 * @return the re
+		 */ 
 		public int getReward(){
 			if(gameOver()){
-				 return (this.playerSum < 22 ? (this.dealerSum < 22 ? (this.dealerSum >= this.playerSum ? -1*this.doubleReward : 1*this.doubleReward) : 1*this.doubleReward):-1*this.doubleReward);
+				return (this.playerSum < 22 ? (this.dealerSum < 22 ? (this.dealerSum >= this.playerSum ? -1*this.doubleReward : 1*this.doubleReward) : 1*this.doubleReward):-1*this.doubleReward);
 			}
 			return 0;
 		}
 		
+		/**
+		 * Converting the value of a card, since all cards above 10 are considered a 10, and the ace is either 1 or 11
+		 * @param card
+		 * @return value of the card
+		 */ 
 		public int getValue(int card){
 			if (card==1){
 				return 11;
@@ -155,6 +208,11 @@ package blackjack;
 			return Math.min(card, 10);
 		}
 		
+		/**
+		 * Checks if a card is ace or not
+		 * @param card
+		 * @return if the card is ace or not
+		 */ 
 		public int checkAce(int card){
 			if(card==1){
 				return 1;
@@ -162,68 +220,33 @@ package blackjack;
 			return 0;
 		}
 		
-		public int getRandomAction(){
-			Random rand = new Random(); 
-			int action = rand.nextInt(2) + 0;
-			return action;
-		}
-	
-
+		/**
+		 * Makes the actual move and returns a list of the state parameters
+		 * @param action. 0=hit, 1=stand, 2=double, 3=split
+		 * @return the state you get to by making the action
+		 */ 
 		public List<Integer> makeMove(int action){
 			if(action == 0){
-				//System.out.println("hitting");
 				this.Hit();
 				return this.getState();
 			}
 			if(action == 1){
-				//System.out.println("Standing");
 				this.Stand();
 				while(this.dealerSum<17 && this.playerSum<=21){
 					this.DealerHit();
 				}
-				//System.out.println("Dealersum is now" + this.dealerSum);
 				return this.getState();
 			}
-			if(action == 2){ //double. Have to figure out how to count in rewards here
-				//System.out.println("Doubling");
+			if(action == 2){ 
 				this.Double();
 				while(this.dealerSum<17 && this.playerSum<=21){
 					this.DealerHit();
 				}
-				//System.out.println("Dealersum is now" + this.dealerSum);
 				return this.getState();
 			}
-			else{//if action = 3 aka SPLIT
-				//System.out.println("Splitting");
+			else{
 				return this.Split();
-			
 			}
 		}
 		
-			
-
-		public static void main(String[] args) {
-			Blackjack game = new Blackjack();
-			while(game.PlayersTurn == true){
-				int action = game.getRandomAction();
-				if(action == 0){
-					//System.out.println("hitting");
-					game.Hit();
-					//System.out.println("new player sum:" + game.playerSum);
-				}
-				if(action == 1){
-					//System.out.println("standing");
-					game.Stand();
-				}
-			}
-			//System.out.println("Dealers turn");
-			while(game.dealerSum<17 && game.playerSum<=21){
-				game.DealerHit();
-				//System.out.println("dealersum afer hit: " + game.dealerSum);
-			}
-			int reward = game.getReward();
-			//System.out.println("Reward:" + reward);
-		}
-	
-
 	}
