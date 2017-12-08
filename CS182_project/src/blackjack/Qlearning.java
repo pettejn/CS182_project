@@ -21,12 +21,12 @@ public class Qlearning {
 	
 	private HashMap<Qstate,Double> qstates;
 	private int states;
-	private int trainingIterations = 1000;
+	private int trainingIterations = 1000000;
 	private int testIterations = 500000;
 	private int i = 1000000;
 	private double epsilon = 1;
 	private double alpha = 0.01;
-	private double gamma =0.5;
+	private double gamma =0.05;
 	private int rewards=0;
 	private int totalRewards=0;
 	private int amountRewards=0;
@@ -267,7 +267,7 @@ public class Qlearning {
 			
 			qlearning.play();
 			//qlearning.epsilon = qlearning.epsilon*0.9999;
-			//qlearning.epsilon = qlearning.alpha*0.999;
+			//qlearning.epsilon = qlearning.alpha*0.99999;
 		}
 		int handsPlayed = qlearning.lost + qlearning.victory;
 		System.out.println("Hands played: " + handsPlayed);
